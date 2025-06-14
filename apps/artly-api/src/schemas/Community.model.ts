@@ -2,9 +2,9 @@ import { Schema } from 'mongoose';
 import {
   BoardArticleCategory,
   BoardArticleStatus,
-} from '../libs/enums/board-article.enum';
+} from '../libs/enums/Community.enum';
 
-const BoardArticleSchema = new Schema(
+const CommunitySchema = new Schema(
   {
     articleCategory: {
       type: String,
@@ -56,4 +56,4 @@ const BoardArticleSchema = new Schema(
   { timestamps: true, collection: 'boardArticles' },
 );
 
-export default BoardArticleSchema;
+export default CommunitySchema;
