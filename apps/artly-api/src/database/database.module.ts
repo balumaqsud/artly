@@ -21,7 +21,7 @@ export class DatabaseModule {
     private readonly connection: Connection,
   ) {
     if (connection.readyState) {
-      console.log(connection.readyState);
+      console.log('this', connection.readyState);
       console.log(
         `Mongo DB connected to ${
           process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
