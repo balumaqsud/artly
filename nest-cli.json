@@ -1,22 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/artly/src",
+  "sourceRoot": "apps/artly-api/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/artly/tsconfig.app.json"
+    "tsConfigPath": "apps/artly-api/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/artly",
+  "root": "apps/artly-api",
   "projects": {
     "artly": {
       "type": "application",
-      "root": "apps/artly",
+      "root": "apps/artly-api",
       "entryFile": "main",
-      "sourceRoot": "apps/artly/src",
+      "sourceRoot": "apps/artly-api/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/artly/tsconfig.app.json"
+        "tsConfigPath": "apps/artly-api/tsconfig.app.json"
       }
     },
     "artly-batch": {
