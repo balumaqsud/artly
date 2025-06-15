@@ -9,17 +9,23 @@ import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { Message } from '../../libs/enums/common.enum';
 import { Member } from '../../libs/dto/member/member';
 import { MemberStatus } from '../../libs/enums/member.enum';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectModel('Member') private readonly memberModel: Model<Member>,
+    private readonly authService: AuthService,
   ) {}
   public async signup(input: MemberInput): Promise<Member> {
     //hash
+    input.memberPassword = await this.authService.hasPassword(
+      input.memberPassword,
+    );
     try {
       const result = await this.memberModel.create(input);
       //auth
+      result.accessToken = await this.authService.createToken(result);
       return result;
     } catch (error) {
       throw new BadRequestException(Message.USED_USERNAME_OR_PHONE);
@@ -40,6 +46,15 @@ export class MemberService {
         throw new InternalServerErrorException(Message.BLOCKED_USER);
       }
       //auth
+      const isMatch = await this.authService.comparePassword(
+        input.memberPassword,
+        response.memberPassword,
+      );
+      if (!isMatch) {
+        throw new BadRequestException(Message.WRONG_PASSWORD);
+      }
+      //token
+      response.accessToken = await this.authService.createToken(response);
       return response;
     } catch (error) {
       throw new BadRequestException(Message.NO_DATA_FOUND);
