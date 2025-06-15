@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { BlobOptions } from 'buffer';
 import { Member } from '../../libs/dto/member/member';
 import { T } from '../../libs/types/common';
 import { shapeId } from '../../libs/config';
