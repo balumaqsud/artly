@@ -28,4 +28,17 @@ export class MemberResolver {
     console.log('mutation: getMember');
     return await this.memberService.getMember();
   }
+
+  //admin => authorization by roles guards
+  @Mutation(() => String)
+  public async getAllMembersByAdmin(): Promise<string> {
+    console.log('mutation: getAllMembersByAdmin');
+    return await this.memberService.getAllMembersByAdmin();
+  }
+
+  @Mutation(() => String)
+  public async updateMemberByAdmin(): Promise<string> {
+    console.log('mutation: updateMemberByAdmin');
+    return await this.memberService.updateMemberByAdmin();
+  }
 }
