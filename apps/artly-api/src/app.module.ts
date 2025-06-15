@@ -11,12 +11,15 @@ import { T } from './libs/types/common';
 
 @Module({
   imports: [
+    // integration of config/env
     ConfigModule.forRoot(),
+    // integration of graphql api
     GraphQLModule.forRoot({
       driver: ApolloDriver,
       playground: true,
       uploads: false,
       autoSchemaFile: true,
+      //global integration of error handling
       formatError: (error: T) => {
         const graphqlError = {
           code: error?.extensions.code,
@@ -27,6 +30,7 @@ import { T } from './libs/types/common';
         return graphqlError;
       },
     }),
+
     ComponentsModule,
     DatabaseModule,
   ],
