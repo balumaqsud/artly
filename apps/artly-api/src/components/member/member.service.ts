@@ -20,7 +20,7 @@ import { ViewService } from '../view/view.service';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { T } from '../../libs/types/common';
-import { lookUpAuthMemberLiked } from '../../libs/config';
+import { lookUpAuthMemberLiked, shapeId } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -191,7 +191,14 @@ export class MemberService {
     return result[0];
   }
 
-  public async updateMemberByAdmin(): Promise<string> {
-    return 'signup';
+  public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
+    const result = await this.memberModel.findOneAndUpdate(
+      { _id: input._id },
+      input,
+      { new: true },
+    );
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    return result;
   }
 }
