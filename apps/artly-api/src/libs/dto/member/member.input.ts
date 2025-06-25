@@ -5,7 +5,7 @@ import {
   MemberStatus,
   MemberType,
 } from '../../enums/member.enum';
-import { availableAgents, availableMembers } from '../../config';
+import { availableMembers, availableSellers } from '../../config';
 import { Direction } from '../../enums/common.enum';
 
 @InputType()
@@ -54,7 +54,7 @@ class AiClass {
 }
 
 @InputType()
-export class AgentsInquiry {
+export class SellersInquiry {
   @IsNotEmpty()
   @Min(1)
   @Field(() => Int)
@@ -66,7 +66,7 @@ export class AgentsInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn([availableAgents])
+  @IsIn([availableSellers])
   @Field(() => String, { nullable: true })
   sort?: string;
 

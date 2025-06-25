@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { T } from './types/common';
 
-export const availableAgents = [
+export const availableSellers = [
   'createdAt',
   'updatedAt',
   'memberLikes',
@@ -26,7 +26,7 @@ export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 
-export const availablePropertySorts = [
+export const availableProductSorts = [
   'createdAt',
   'updatedAt',
   'propertyRank',
