@@ -6,6 +6,9 @@ import {
   MemberType,
 } from '../../enums/member.enum';
 
+import { MeLiked } from '../like/like';
+import { MeFollowed } from '../follow/follow';
+
 @ObjectType()
 export class Member {
   @Field(() => String)
@@ -84,6 +87,13 @@ export class Member {
 
   @Field(() => String, { nullable: true })
   accessToken?: string;
+
+  ///aggregation
+  @Field(() => [MeLiked], { nullable: true })
+  meLiked?: MeLiked[];
+
+  @Field(() => [MeFollowed], { nullable: true })
+  meFollowed?: MeFollowed[];
 }
 
 @ObjectType()
