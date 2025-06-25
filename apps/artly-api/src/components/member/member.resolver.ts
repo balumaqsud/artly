@@ -38,10 +38,13 @@ export class MemberResolver {
   }
 
   @Query(() => Member)
-  public async getMember(@Args('memberId') input: string): Promise<Member> {
+  public async getMember(
+    @Args('memberId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Member> {
     console.log('mutation: getMember');
-    const memberId = shapeId(input);
-    return await this.memberService.getMember(memberId);
+    const targetId = shapeId(input);
+    return await this.memberService.getMember(memberId, targetId);
   }
 
   //admin => authorization by roles guards

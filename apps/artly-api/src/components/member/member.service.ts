@@ -11,12 +11,17 @@ import { Member } from '../../libs/dto/member/member';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
+import { ViewService } from '../view/view.service';
+import { ViewInput } from '../../libs/dto/view/view.input';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { T } from '../../libs/types/common';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectModel('Member') private readonly memberModel: Model<Member>,
     private readonly authService: AuthService,
+    private readonly viewService: ViewService,
   ) {}
   public async signup(input: MemberInput): Promise<Member> {
     //hash
@@ -78,15 +83,32 @@ export class MemberService {
     return result;
   }
 
-  public async getMember(memberId: ObjectId): Promise<Member> {
-    const result = await this.memberModel
-      .findOne({
-        _id: memberId,
-        memberStatus: { $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK] },
-      })
-      .exec();
+  public async getMember(
+    memberId: ObjectId,
+    targetId: ObjectId,
+  ): Promise<Member> {
+    const search: T = {
+      _id: targetId,
+      memberStatus: { $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK] },
+    };
+    const result = await this.memberModel.findOne(search).exec();
     if (!result) {
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    }
+
+    if (memberId) {
+      const viewInput: ViewInput = {
+        memberId: memberId,
+        viewRefId: targetId,
+        viewGroup: ViewGroup.MEMBER,
+      };
+      const newView = await this.viewService.recordView(viewInput);
+      if (newView) {
+        await this.memberModel
+          .findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true })
+          .exec();
+        result.memberViews++;
+      }
     }
     return result;
   }
