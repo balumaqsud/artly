@@ -7,6 +7,8 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
+import { MemberUpdate } from '../../libs/dto/member/member.update';
+import { ObjectId } from 'mongoose';
 
 @Resolver()
 export class MemberResolver {
@@ -26,11 +28,12 @@ export class MemberResolver {
   @UseGuards(AuthGuard)
   @Mutation(() => String)
   public async updateMember(
-    @AuthMember('_id') memberId: Member,
-  ): Promise<string> {
+    @Args('input') input: MemberUpdate,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Member> {
     console.log('mutation: updateMember');
-    console.log('authMember', memberId);
-    return await this.memberService.updateMember();
+    delete input._id;
+    return await this.memberService.updateMember(memberId, input);
   }
 
   @Query(() => String)
