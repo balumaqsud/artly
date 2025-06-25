@@ -65,19 +65,30 @@ export class MemberService {
     memberId: ObjectId,
     input: MemberUpdate,
   ): Promise<Member> {
-    const result = await this.memberModel.findOneAndUpdate(
-      { _id: memberId, memberStatus: MemberStatus.ACTIVE },
-      input,
-      { new: true },
-    );
+    const result = await this.memberModel
+      .findOneAndUpdate(
+        { _id: memberId, memberStatus: MemberStatus.ACTIVE },
+        input,
+        { new: true },
+      )
+      .exec();
     if (!result) {
       throw new InternalServerErrorException(Message.UPDATE_FAILED);
     }
     return result;
   }
 
-  public async getMember(): Promise<string> {
-    return 'signup';
+  public async getMember(memberId: ObjectId): Promise<Member> {
+    const result = await this.memberModel
+      .findOne({
+        _id: memberId,
+        memberStatus: { $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK] },
+      })
+      .exec();
+    if (!result) {
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    }
+    return result;
   }
 
   public async getAllMembersByAdmin(): Promise<string> {
