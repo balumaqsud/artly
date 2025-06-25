@@ -7,7 +7,7 @@ import {
 
 const PropertySchema = new Schema(
   {
-    propertyType: {
+    productType: {
       type: String,
       enum: ProductType,
       required: true,
