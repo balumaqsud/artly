@@ -8,6 +8,7 @@ import { Product, Products } from '../../libs/dto/product/product';
 import {
   ProductInput,
   ProductsInquiry,
+  SellerProductsInquiry,
 } from '../../libs/dto/product/product.input';
 import { ObjectId } from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -64,7 +65,19 @@ export class ProductResolver {
     @Args('input') input: ProductsInquiry,
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Products> {
-    console.log('query: getProperties');
+    console.log('query: getProducts');
     return await this.productService.getProducts(memberId, input);
+  }
+
+  //getProducts
+  @Roles(MemberType.SELLER)
+  @UseGuards(RolesGuard)
+  @Query((returns) => Products)
+  public async getSellerProducts(
+    @Args('input') input: SellerProductsInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Products> {
+    console.log('query: getSellerProducts');
+    return await this.productService.getSellerProducts(memberId, input);
   }
 }
