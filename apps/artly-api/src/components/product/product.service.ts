@@ -8,6 +8,7 @@ import { Model, ObjectId } from 'mongoose';
 import { Product, Products } from '../../libs/dto/product/product';
 import { MemberService } from '../member/member.service';
 import {
+  AllProductsInquiry,
   ProductInput,
   ProductsInquiry,
   SellerProductsInquiry,
@@ -15,7 +16,7 @@ import {
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ProductStatus } from '../../libs/enums/product.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
-import { shapeId } from '../../libs/config';
+import { lookUpMember, shapeId } from '../../libs/config';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -151,7 +152,7 @@ export class ProductService {
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
               //   lookUpAuthMemberLiked(memberId),
-              //   lookUpMember,
+              lookUpMember,
               { $unwind: '$memberData' },
             ],
             metaCounter: [{ $count: 'total' }],
@@ -191,7 +192,46 @@ export class ProductService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              ///
+              lookUpMember,
+              { $unwind: '$memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    return result[0];
+  }
+
+  /////////////// admin methods
+  public async getAllProductsByAdmin(
+    input: AllProductsInquiry,
+  ): Promise<Products> {
+    const { productStatus, productLocationList } = input.search;
+
+    const match: T = {};
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+
+    if (productStatus) match.productStatus = productStatus;
+    if (productLocationList)
+      match.productLocation = { $in: productLocationList };
+
+    const result = await this.productModel
+      .aggregate([
+        { $match: match },
+        {
+          $sort: sort,
+        },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookUpMember,
               { $unwind: '$memberData' },
             ],
             metaCounter: [{ $count: 'total' }],

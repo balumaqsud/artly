@@ -6,6 +6,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { UseGuards } from '@nestjs/common';
 import { Product, Products } from '../../libs/dto/product/product';
 import {
+  AllProductsInquiry,
   ProductInput,
   ProductsInquiry,
   SellerProductsInquiry,
@@ -79,5 +80,17 @@ export class ProductResolver {
   ): Promise<Products> {
     console.log('query: getSellerProducts');
     return await this.productService.getSellerProducts(memberId, input);
+  }
+
+  //getALlProduct
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Query((returns) => Products)
+  public async getAllProductsByAdmin(
+    @Args('input') input: AllProductsInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Products> {
+    console.log('query: getProductsByAdmin');
+    return await this.productService.getAllProductsByAdmin(input);
   }
 }
