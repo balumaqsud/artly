@@ -104,4 +104,15 @@ export class ProductResolver {
     input._id = shapeId(input._id);
     return await this.productService.updateProductByAdmin(input);
   }
+
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation((returns) => Product)
+  public async removeProductByAdmin(
+    @Args('productId') input: string,
+  ): Promise<Product> {
+    console.log('mutation: removeProductByAdmin');
+    const productId = shapeId(input);
+    return await this.productService.removeProductByAdmin(productId);
+  }
 }
