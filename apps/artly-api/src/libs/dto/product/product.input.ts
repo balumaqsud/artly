@@ -17,7 +17,7 @@ import { availableOptions, availableProductSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
 
 @InputType()
-export class PropertyInput {
+export class ProductInput {
   @IsNotEmpty()
   @Field(() => ProductType)
   productType: ProductType;

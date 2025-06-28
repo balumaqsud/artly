@@ -5,7 +5,7 @@ import {
   ProductType,
 } from '../libs/enums/product.enum';
 
-const PropertySchema = new Schema(
+const ProductSchema = new Schema(
   {
     productType: {
       type: String,
@@ -90,9 +90,9 @@ const PropertySchema = new Schema(
   { timestamps: true, collection: 'products' },
 );
 
-PropertySchema.index(
-  { propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 },
+ProductSchema.index(
+  { productType: 1, productLocation: 1, productTitle: 1, productPrice: 1 },
   { unique: true },
 );
 
-export default PropertySchema;
+export default ProductSchema;
