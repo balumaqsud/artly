@@ -244,6 +244,34 @@ export class ProductService {
     return result[0];
   }
 
+  //admin product update
+  public async updateProductByAdmin(input: ProductUpdate): Promise<Product> {
+    let { productStatus, soldAt, deletedAt } = input;
+    const search: T = {
+      _id: input._id,
+      productStatus: ProductStatus.ACTIVE,
+    };
+
+    if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
+    if (productStatus === ProductStatus.DELETE) deletedAt = moment().toDate();
+
+    const result = await this.productModel.findOneAndUpdate(search, input, {
+      new: true,
+    });
+    console.log(result);
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if (soldAt || deletedAt) {
+      await this.memberService.memberStatsEditor({
+        _id: result.memberId,
+        targetKey: 'memberProducts',
+        modifier: -1,
+      });
+    }
+
+    return result;
+  }
+
   /////////////// private methods
   private shapeMatchQuery(
     match: Record<string, any>,

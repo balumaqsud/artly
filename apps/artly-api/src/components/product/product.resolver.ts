@@ -93,4 +93,15 @@ export class ProductResolver {
     console.log('query: getProductsByAdmin');
     return await this.productService.getAllProductsByAdmin(input);
   }
+
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation((returns) => Product)
+  public async updateProductByAdmin(
+    @Args('input') input: ProductUpdate,
+  ): Promise<Product> {
+    console.log('mutation: updateProductByAdmin');
+    input._id = shapeId(input._id);
+    return await this.productService.updateProductByAdmin(input);
+  }
 }
