@@ -9,52 +9,51 @@ import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
 
 @ObjectType()
-export class Property {
+export class Product {
   @Field(() => String)
   _id: ObjectId;
 
   @Field(() => ProductType)
-  propertyType: ProductType;
+  productType: ProductType;
 
   @Field(() => ProductStatus)
-  propertyStatus: ProductStatus;
+  productStatus: ProductStatus;
 
   @Field(() => ProductLocation)
-  propertyLocation: ProductLocation;
+  productLocation: ProductLocation;
 
   @Field(() => String)
-  propertyAddress: string;
+  productAddress: string;
 
   @Field(() => String)
-  propertyTitle: string;
+  productTitle: string;
 
   @Field(() => Int)
-  propertyPrice: number;
+  productPrice: number;
 
   @Field(() => Int)
-  propertyViews: number;
+  productViews: number;
 
   @Field(() => Int)
-  propertyLikes: number;
+  productLikes: number;
 
   @Field(() => Int)
-  propertyComments: number;
+  productComments: number;
 
   @Field(() => Int)
-  propertyRank: number;
+  productRank: number;
 
   @Field(() => [String])
-  propertyImages: [string];
+  productImages: [string];
 
   @Field(() => String, { nullable: true })
-  propertyDesc?: string;
+  productDesc?: string;
 
   @Field(() => String)
   memberId: ObjectId;
 
   @Field(() => Date, { nullable: true })
   soldAt?: Date;
-
   @Field(() => Date, { nullable: true })
   deletedAt?: Date;
 
@@ -78,9 +77,9 @@ export class Property {
 }
 
 @ObjectType()
-export class Properties {
-  @Field(() => [Property])
-  list: Property[];
+export class Products {
+  @Field(() => [Product])
+  list: Product[];
 
   @Field(() => [TotalCounter], { nullable: true })
   metaCounter: TotalCounter[];
