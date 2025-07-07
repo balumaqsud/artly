@@ -81,6 +81,8 @@ const ProductSchema = new Schema(
 
     productStock: { type: Number, default: 0 },
 
+    productSlug: { type: String, unique: true },
+
     memberId: {
       type: Schema.Types.ObjectId,
       required: true,
@@ -100,11 +102,6 @@ const ProductSchema = new Schema(
     },
   },
   { timestamps: true, collection: 'products' },
-);
-
-ProductSchema.index(
-  { productType: 1, productLocation: 1, productTitle: 1, productPrice: 1 },
-  { unique: true },
 );
 
 export default ProductSchema;
