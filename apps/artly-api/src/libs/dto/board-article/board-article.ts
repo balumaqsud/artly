@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
   BoardArticleCategory,
   BoardArticleStatus,
-} from '../../enums/board-article.enum';
+} from '../../enums/Community.enum';
 import { ObjectId } from 'mongoose';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';

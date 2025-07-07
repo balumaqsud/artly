@@ -28,7 +28,7 @@ import { ProductUpdate } from '../../libs/dto/product/product.update';
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectModel('Property') private readonly productModel: Model<Product>,
+    @InjectModel('Product') private readonly productModel: Model<Product>,
     private memberService: MemberService,
     private viewService: ViewService,
     // private likeService: LikeService,

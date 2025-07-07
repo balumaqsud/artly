@@ -4,7 +4,7 @@ import { ObjectId } from 'mongoose';
 import {
   BoardArticleCategory,
   BoardArticleStatus,
-} from '../../enums/board-article.enum';
+} from '../../enums/Community.enum';
 import { Direction } from '../../enums/common.enum';
 import { availableBoardArticleSorts } from '../../config';
 

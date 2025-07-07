@@ -32,7 +32,7 @@ export class AuthService {
     return this.jwtService.signAsync(payload);
   }
 
-  private async verifyToken(token: string): Promise<Member> {
+  public async verifyToken(token: string): Promise<Member> {
     const member = await this.jwtService.verifyAsync(token);
     member._id = shapeId(member._id);
     return member;
