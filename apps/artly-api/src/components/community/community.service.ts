@@ -13,6 +13,7 @@ import { Message } from '../../libs/enums/common.enum';
 import { ArticleStatus } from '../../libs/enums/Community.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier } from '../../libs/types/common';
+import { ArticleUpdate } from '../../libs/dto/board-article/article.update';
 
 @Injectable()
 export class CommunityService {
@@ -73,6 +74,31 @@ export class CommunityService {
       result.memberId,
     );
 
+    return result;
+  }
+
+  public async updateArticle(
+    memberId: ObjectId,
+    input: ArticleUpdate,
+  ): Promise<Article> {
+    const match = {
+      _id: input._id,
+      memberId: memberId,
+      articleStatus: ArticleStatus.ACTIVE,
+    };
+
+    const result = await this.communityModel
+      .findOneAndUpdate(match, input, { new: true })
+      .exec();
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if ((input.articleStatus = ArticleStatus.DELETE)) {
+      await this.memberService.memberStatsEditor({
+        _id: memberId,
+        targetKey: 'memberArticles',
+        modifier: -1,
+      });
+    }
     return result;
   }
 
