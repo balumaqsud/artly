@@ -1,21 +1,18 @@
 import { Schema } from 'mongoose';
-import {
-  BoardArticleCategory,
-  BoardArticleStatus,
-} from '../libs/enums/Community.enum';
+import { ArticleCategory, ArticleStatus } from '../libs/enums/Community.enum';
 
 const CommunitySchema = new Schema(
   {
     articleCategory: {
       type: String,
-      enum: BoardArticleCategory,
+      enum: ArticleCategory,
       required: true,
     },
 
     articleStatus: {
       type: String,
-      enum: BoardArticleStatus,
-      default: BoardArticleStatus.ACTIVE,
+      enum: ArticleStatus,
+      default: ArticleStatus.ACTIVE,
     },
 
     articleTitle: {

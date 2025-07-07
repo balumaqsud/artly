@@ -1,9 +1,5 @@
 import { Schema } from 'mongoose';
-import {
-  ProductLocation,
-  ProductStatus,
-  ProductType,
-} from '../libs/enums/product.enum';
+import { ProductStatus, ProductType } from '../libs/enums/product.enum';
 
 const ProductSchema = new Schema(
   {
@@ -13,6 +9,23 @@ const ProductSchema = new Schema(
       required: true,
     },
 
+    productCategory: { type: String, required: true },
+
+    productTags: [{ type: String }],
+
+    productOptions: [
+      {
+        name: { type: String }, // e.g., "Size"
+        values: [{ type: String }], // e.g., ["Small", "Large"]
+      },
+    ],
+
+    productShippingTime: { type: String }, // e.g., "3-5 business days"
+
+    productShippingCost: { type: Number, default: 0 },
+
+    productMaterials: [{ type: String }],
+
     productStatus: {
       type: String,
       enum: ProductStatus,
@@ -20,12 +33,6 @@ const ProductSchema = new Schema(
     },
 
     productLocation: {
-      type: String,
-      enum: ProductLocation,
-      required: true,
-    },
-
-    productAddress: {
       type: String,
       required: true,
     },
@@ -68,6 +75,8 @@ const ProductSchema = new Schema(
     productDesc: {
       type: String,
     },
+
+    productStock: { type: Number, default: 0 },
 
     memberId: {
       type: Schema.Types.ObjectId,
