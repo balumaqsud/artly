@@ -35,7 +35,7 @@ export const availableProductSorts = [
   'propertyPrice',
 ];
 
-export const availableBoardArticleSorts = [
+export const availableArticleSorts = [
   'createdAt',
   'updatedAt',
   'articleLikes',

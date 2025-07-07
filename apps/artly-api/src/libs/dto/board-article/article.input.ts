@@ -1,18 +1,15 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { ObjectId } from 'mongoose';
-import {
-  BoardArticleCategory,
-  BoardArticleStatus,
-} from '../../enums/Community.enum';
+import { ArticleCategory, ArticleStatus } from '../../enums/Community.enum';
 import { Direction } from '../../enums/common.enum';
-import { availableBoardArticleSorts } from '../../config';
+import { availableArticleSorts } from '../../config';
 
 @InputType()
-export class BoardArticleInput {
+export class ArticleInput {
   @IsNotEmpty()
-  @Field(() => BoardArticleCategory)
-  articleCategory: BoardArticleCategory;
+  @Field(() => ArticleCategory)
+  articleCategory: ArticleCategory;
 
   @IsNotEmpty()
   @Length(3, 50)
@@ -34,8 +31,8 @@ export class BoardArticleInput {
 @InputType()
 class BAISearch {
   @IsOptional()
-  @Field(() => BoardArticleCategory, { nullable: true })
-  articleCategory?: BoardArticleCategory;
+  @Field(() => ArticleCategory, { nullable: true })
+  articleCategory?: ArticleCategory;
 
   @IsOptional()
   @Field(() => String, { nullable: true })
@@ -47,7 +44,7 @@ class BAISearch {
 }
 
 @InputType()
-export class BoardArticlesInquiry {
+export class ArticlesInquiry {
   @IsNotEmpty()
   @Min(1)
   @Field(() => Int)
@@ -59,7 +56,7 @@ export class BoardArticlesInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn(availableBoardArticleSorts)
+  @IsIn(availableArticleSorts)
   @Field(() => String, { nullable: true })
   sort?: string;
 
@@ -75,16 +72,16 @@ export class BoardArticlesInquiry {
 @InputType()
 class ABAISearch {
   @IsOptional()
-  @Field(() => BoardArticleStatus, { nullable: true })
-  articleStatus?: BoardArticleStatus;
+  @Field(() => ArticleStatus, { nullable: true })
+  articleStatus?: ArticleStatus;
 
   @IsOptional()
-  @Field(() => BoardArticleCategory, { nullable: true })
-  articleCategory?: BoardArticleCategory;
+  @Field(() => ArticleCategory, { nullable: true })
+  articleCategory?: ArticleCategory;
 }
 
 @InputType()
-export class AllBoardArticlesInquiry {
+export class AllArticlesInquiry {
   @IsNotEmpty()
   @Min(1)
   @Field(() => Int)
@@ -96,7 +93,7 @@ export class AllBoardArticlesInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn(availableBoardArticleSorts)
+  @IsIn(availableArticleSorts)
   @Field(() => String, { nullable: true })
   sort?: string;
 

@@ -1,22 +1,19 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import {
-  BoardArticleCategory,
-  BoardArticleStatus,
-} from '../../enums/Community.enum';
+import { ArticleCategory, ArticleStatus } from '../../enums/Community.enum';
 import { ObjectId } from 'mongoose';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
 
 @ObjectType()
-export class BoardArticle {
+export class Article {
   @Field(() => String)
   _id: ObjectId;
 
-  @Field(() => BoardArticleCategory)
-  articleCategory: BoardArticleCategory;
+  @Field(() => ArticleCategory)
+  articleCategory: ArticleCategory;
 
-  @Field(() => BoardArticleStatus)
-  articleStatus: BoardArticleStatus;
+  @Field(() => ArticleStatus)
+  articleStatus: ArticleStatus;
 
   @Field(() => String)
   articleTitle: string;
@@ -56,9 +53,9 @@ export class BoardArticle {
 }
 
 @ObjectType()
-export class BoardArticles {
-  @Field(() => [BoardArticle])
-  list: BoardArticle[];
+export class Articles {
+  @Field(() => [Article])
+  list: Article[];
 
   @Field(() => [TotalCounter], { nullable: true })
   metaCounter: TotalCounter[];
