@@ -9,6 +9,7 @@ import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import { Article, Articles } from '../../libs/dto/board-article/article';
 import {
+  AllArticlesInquiry,
   ArticleInput,
   ArticlesInquiry,
 } from '../../libs/dto/board-article/article.input';
@@ -143,8 +144,76 @@ export class CommunityService {
 
     return result[0];
   }
+  //admin
+  public async getAllArticlesByAdmin(
+    input: AllArticlesInquiry,
+  ): Promise<Articles> {
+    const { articleCategory, articleStatus } = input.search;
+    const match: T = {};
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
 
-  ///
+    if (articleCategory) match.articleCategory = articleCategory;
+    if (articleStatus) match.articleStatus = articleStatus;
+
+    const result = await this.communityModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookUpMember,
+              { $unwind: 'memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
+  }
+
+  public async updateArticleByAdmin(input: ArticleUpdate): Promise<Article> {
+    const match = {
+      _id: input._id,
+      articleStatus: ArticleStatus.ACTIVE,
+    };
+
+    const result = await this.communityModel
+      .findOneAndUpdate(match, input, { new: true })
+      .exec();
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if ((input.articleStatus = ArticleStatus.DELETE)) {
+      await this.memberService.memberStatsEditor({
+        _id: result.memberId,
+        targetKey: 'memberArticles',
+        modifier: -1,
+      });
+    }
+    return result;
+  }
+  public async removeArticle(articleId: ObjectId): Promise<Article> {
+    const result = await this.communityModel
+      .findByIdAndDelete({
+        _id: articleId,
+        articleStatus: ArticleStatus.DELETE,
+      })
+      .exec();
+
+    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+    return result;
+  }
+
+  // secondary methods
   public async articleStatsEditor(
     input: StatisticModifier,
   ): Promise<Article | null> {

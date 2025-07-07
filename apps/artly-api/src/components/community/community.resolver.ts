@@ -4,6 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { Article, Articles } from '../../libs/dto/board-article/article';
 import {
+  AllArticlesInquiry,
   ArticleInput,
   ArticlesInquiry,
 } from '../../libs/dto/board-article/article.input';
@@ -12,6 +13,9 @@ import { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeId } from '../../libs/config';
 import { ArticleUpdate } from '../../libs/dto/board-article/article.update';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { MemberType } from '../../libs/enums/member.enum';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Resolver()
 export class CommunityResolver {
@@ -55,7 +59,44 @@ export class CommunityResolver {
     @Args('input') input: ArticlesInquiry,
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Articles> {
-    console.log('query, get articless');
+    console.log('query, get articles');
     return await this.communityService.getArticles(memberId, input);
+  }
+
+  //admin
+  //getAllArticlesByAdmin
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Query((returns) => Articles)
+  public async getAllArticlesByAdmin(
+    @Args('input') input: AllArticlesInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ) {
+    console.log('query: getAllArticlesByAdmin');
+    return await this.communityService.getAllArticlesByAdmin(input);
+  }
+  //updateArticleByAdmin
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation((returns) => Article)
+  public async updateArticleByAdmin(
+    @Args('input') input: ArticleUpdate,
+    @AuthMember('_id') memberId: ObjectId,
+  ) {
+    console.log('mutation: updateArticleByAdmin');
+    input._id = shapeId(input._id); //argument.  function
+    return await this.communityService.updateArticleByAdmin(input);
+  }
+  //removeArticle
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation((returns) => Article)
+  public async removeArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ) {
+    console.log('mutation: removeArticle');
+    const articleId = shapeId(input);
+    return await this.communityService.removeArticle(articleId);
   }
 }
