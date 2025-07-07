@@ -26,6 +26,9 @@ const ProductSchema = new Schema(
 
     productMaterials: [{ type: String }],
 
+    productWrapAvailable: { type: Boolean, default: false },
+    productPersonalizable: { type: Boolean, default: false },
+
     productStatus: {
       type: String,
       enum: ProductStatus,
