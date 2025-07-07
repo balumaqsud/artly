@@ -7,13 +7,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
-import { Article } from '../../libs/dto/board-article/article';
-import { ArticleInput } from '../../libs/dto/board-article/article.input';
-import { Message } from '../../libs/enums/common.enum';
+import { Article, Articles } from '../../libs/dto/board-article/article';
+import {
+  ArticleInput,
+  ArticlesInquiry,
+} from '../../libs/dto/board-article/article.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { ArticleStatus } from '../../libs/enums/Community.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
-import { StatisticModifier } from '../../libs/types/common';
+import { StatisticModifier, T } from '../../libs/types/common';
 import { ArticleUpdate } from '../../libs/dto/board-article/article.update';
+import { lookUpMember, shapeId } from '../../libs/config';
 
 @Injectable()
 export class CommunityService {
@@ -100,6 +104,44 @@ export class CommunityService {
       });
     }
     return result;
+  }
+
+  //getArticles
+  public async getArticles(
+    memberId: ObjectId,
+    input: ArticlesInquiry,
+  ): Promise<Articles> {
+    const { articleCategory, text } = input.search;
+    const match: T = { articleStatus: ArticleStatus.ACTIVE };
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+    if (articleCategory) match.articleCategory = articleCategory;
+    if (text) match.articleTitle = { $regex: new RegExp(text, 'i') };
+    if (input.search?.memberId)
+      match.memberId = shapeId(input.search?.memberId);
+    console.log('getArticles match:', match);
+    const result = await this.communityModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookUpMember,
+              { $unwind: 'memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
   }
 
   ///

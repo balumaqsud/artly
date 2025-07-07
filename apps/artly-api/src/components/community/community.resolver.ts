@@ -2,8 +2,11 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CommunityService } from './community.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { Article } from '../../libs/dto/board-article/article';
-import { ArticleInput } from '../../libs/dto/board-article/article.input';
+import { Article, Articles } from '../../libs/dto/board-article/article';
+import {
+  ArticleInput,
+  ArticlesInquiry,
+} from '../../libs/dto/board-article/article.input';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { ObjectId } from 'mongoose';
 import { WithoutGuard } from '../auth/guards/without.guard';
@@ -44,5 +47,15 @@ export class CommunityResolver {
     console.log('mutation, create article');
     input._id = shapeId(input._id);
     return await this.communityService.updateArticle(memberId, input);
+  }
+
+  @UseGuards(WithoutGuard)
+  @Query((returns) => Articles)
+  public async getArticles(
+    @Args('input') input: ArticlesInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Articles> {
+    console.log('query, get articless');
+    return await this.communityService.getArticles(memberId, input);
   }
 }
