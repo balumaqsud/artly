@@ -8,10 +8,17 @@ import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ViewService } from '../view/view.service';
 import { ProductService } from '../product/product.service';
-import { CommentInput } from '../../libs/dto/comment/comment.input';
-import { Comment } from '../../libs/dto/comment/comment';
-import { Message } from '../../libs/enums/common.enum';
-import { CommentGroup } from '../../libs/enums/comment.enum';
+import {
+  CommentInput,
+  CommentsInquiry,
+} from '../../libs/dto/comment/comment.input';
+import { Comment, Comments } from '../../libs/dto/comment/comment';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
+import { CommentUpdate } from '../../libs/dto/comment/comment.update';
+import { ArticleStatus } from '../../libs/enums/community.enum';
+import { lookUpMember } from '../../libs/config';
+import { T } from '../../libs/types/common';
 
 @Injectable()
 export class CommentService {
@@ -24,7 +31,7 @@ export class CommentService {
     private viewService: ViewService,
     private productService: ProductService,
   ) {}
-
+  //createComment
   public async createComment(
     memberId: ObjectId,
     input: CommentInput,
@@ -63,5 +70,59 @@ export class CommentService {
     }
     if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
     return result;
+  }
+  //updateComment
+  public async updateComment(
+    memberId: ObjectId,
+    input: CommentUpdate,
+  ): Promise<Comment> {
+    const result = await this.commentModel.findOneAndUpdate(
+      {
+        _id: input._id,
+        memberId: memberId,
+        commentStatus: CommentStatus.ACTIVE,
+      },
+      input,
+      { new: true },
+    );
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+    return result;
+  }
+  //getComments
+  public async getComments(
+    memberId: ObjectId,
+    input: CommentsInquiry,
+  ): Promise<Comments> {
+    const { commentRefId } = input.search;
+    const match: T = {
+      commentRefId: commentRefId,
+      commentStatus: CommentStatus.ACTIVE,
+    };
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+
+    const result = await this.commentModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              //liked
+              lookUpMember,
+              { $unwind: '$memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
   }
 }
