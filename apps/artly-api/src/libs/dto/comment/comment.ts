@@ -2,6 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
 import { CommentGroup, CommentStatus } from '../../enums/comment.enum';
 import { Member, TotalCounter } from '../member/member';
+import { MeLiked } from '../like/like';
 
 @ObjectType()
 export class Comment {
@@ -20,6 +21,9 @@ export class Comment {
   @Field(() => String)
   commentRefId: ObjectId;
 
+  @Field(() => Number)
+  commentLikes: number;
+
   @Field(() => String)
   memberId: ObjectId;
 
@@ -36,6 +40,10 @@ export class Comment {
 
   @Field(() => Member, { nullable: true })
   memberData?: Member;
+
+  ///aggregation
+  @Field(() => [MeLiked], { nullable: true })
+  meLiked?: MeLiked[];
 
   @Field(() => [Comment], { nullable: true })
   replies?: Comment[];
