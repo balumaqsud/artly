@@ -5,41 +5,44 @@ import { Member, TotalCounter } from '../member/member';
 
 @ObjectType()
 export class Comment {
-	@Field(() => String)
-	_id: ObjectId;
+  @Field(() => String)
+  _id: ObjectId;
 
-	@Field(() => CommentStatus)
-	commentStatus: CommentStatus;
+  @Field(() => CommentStatus)
+  commentStatus: CommentStatus;
 
-	@Field(() => CommentGroup)
-	commentGroup: CommentGroup;
+  @Field(() => CommentGroup)
+  commentGroup: CommentGroup;
 
-	@Field(() => String)
-	commentContent: string;
+  @Field(() => String)
+  commentContent: string;
 
-	@Field(() => String)
-	commentRefId: ObjectId;
+  @Field(() => String)
+  commentRefId: ObjectId;
 
-	@Field(() => String)
-	memberId: ObjectId;
+  @Field(() => String)
+  memberId: ObjectId;
 
-	@Field(() => Date)
-	createdAt: Date;
+  @Field(() => String, { nullable: true })
+  parentCommentId?: ObjectId;
 
-	@Field(() => Date)
-	updatedAt: Date;
+  @Field(() => Date)
+  createdAt: Date;
 
-	/** from aggregation **/
+  @Field(() => Date)
+  updatedAt: Date;
 
-	@Field(() => Member, { nullable: true })
-	memberData?: Member;
+  /** from aggregation **/
+
+  @Field(() => Member, { nullable: true })
+  memberData?: Member;
 }
 
 @ObjectType()
 export class Comments {
-	@Field(() => [Comment])
-	list: Comment[];
+  @Field(() => [Comment])
+  list: Comment[];
 
-	@Field(() => [TotalCounter], { nullable: true })
-	metaCounter: TotalCounter[];
+  @Field(() => [TotalCounter], { nullable: true })
+  metaCounter: TotalCounter[];
 }
