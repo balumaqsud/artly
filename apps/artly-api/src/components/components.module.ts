@@ -7,7 +7,6 @@ import { CommentModule } from './comment/comment.module';
 import { CommunityModule } from './community/community.module';
 import { FollowModule } from './follow/follow.module';
 import { LikeModule } from './like/like.module';
-import { CommentsResolver } from './comments/comments.resolver';
 
 @Module({
   imports: [

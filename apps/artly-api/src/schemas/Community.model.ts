@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { ArticleCategory, ArticleStatus } from '../libs/enums/Community.enum';
+import { ArticleCategory, ArticleStatus } from '../libs/enums/community.enum';
 
 const CommunitySchema = new Schema(
   {
@@ -50,7 +50,7 @@ const CommunitySchema = new Schema(
       ref: 'Member',
     },
   },
-  { timestamps: true, collection: 'boardArticles' },
+  { timestamps: true, collection: 'articles' },
 );
 
 export default CommunitySchema;
