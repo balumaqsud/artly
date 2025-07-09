@@ -11,22 +11,21 @@ const ProductSchema = new Schema(
 
     productCategory: { type: String, required: true },
 
-    productTags: [{ type: String }],
+    productTags: {
+      type: [String],
+    },
 
-    productOptions: [
-      {
-        name: { type: String }, // e.g., "Size"
-        values: [{ type: String }], // e.g., ["Small", "Large"]
-      },
-    ],
-
-    productShippingTime: { type: String }, // e.g., "3-5 business days"
+    productShippingTime: { type: String },
 
     productShippingCost: { type: Number, default: 0 },
 
-    productMaterials: [{ type: String }],
+    productMaterials: {
+      type: [String],
+      required: true,
+    },
 
     productWrapAvailable: { type: Boolean, default: false },
+
     productPersonalizable: { type: Boolean, default: false },
 
     productStatus: {

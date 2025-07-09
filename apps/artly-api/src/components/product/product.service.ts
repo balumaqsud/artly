@@ -24,6 +24,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import * as moment from 'moment';
 import { ViewService } from '../view/view.service';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
+import slugify from 'slugify';
 
 @Injectable()
 export class ProductService {
@@ -36,8 +37,18 @@ export class ProductService {
   //createProperty
   public async createProduct(input: ProductInput): Promise<Product> {
     console.log('executed: createProduct');
+    const slug = slugify(input.productTitle, { lower: true, strict: true });
+
+    const existing = await this.productModel.findOne({ productSlug: slug });
+    if (existing) {
+      throw new BadRequestException('Product slug already exists');
+    }
+
     try {
-      const result = await this.productModel.create(input);
+      const result = await this.productModel.create({
+        ...input,
+        productSlug: slug,
+      });
       // increase member products
       await this.memberService.memberStatsEditor({
         _id: result.memberId,
@@ -209,7 +220,7 @@ export class ProductService {
   public async getAllProductsByAdmin(
     input: AllProductsInquiry,
   ): Promise<Products> {
-    const { productStatus, productLocationList } = input.search;
+    const { productStatus, productLocation } = input.search;
 
     const match: T = {};
     const sort: T = {
@@ -217,8 +228,7 @@ export class ProductService {
     };
 
     if (productStatus) match.productStatus = productStatus;
-    if (productLocationList)
-      match.productLocation = { $in: productLocationList };
+    if (productLocation) match.productLocation = { $in: productLocation };
 
     const result = await this.productModel
       .aggregate([
@@ -290,7 +300,7 @@ export class ProductService {
   ): void {
     const {
       memberId,
-      locationList,
+      productLocation,
       typeList,
       periodsRange,
       pricesRange,
@@ -299,7 +309,7 @@ export class ProductService {
     } = input.search;
 
     if (memberId) match.memberId = shapeId(memberId);
-    if (locationList) match.productLocation = { $in: locationList };
+    if (productLocation) match.productLocation = { $in: productLocation };
     if (typeList) match.productType = { $in: typeList };
 
     if (pricesRange)

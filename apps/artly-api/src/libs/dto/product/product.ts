@@ -1,10 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
-import {
-  ProductType,
-  ProductStatus,
-  ProductLocation,
-} from '../../enums/product.enum';
+import { ProductType, ProductStatus } from '../../enums/product.enum';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
 
@@ -19,11 +15,11 @@ export class Product {
   @Field(() => ProductStatus)
   productStatus: ProductStatus;
 
-  @Field(() => ProductLocation)
-  productLocation: ProductLocation;
+  @Field(() => String)
+  productLocation: string;
 
   @Field(() => String)
-  productAddress: string;
+  productShippingTime: string;
 
   @Field(() => String)
   productTitle: string;
@@ -46,19 +42,32 @@ export class Product {
   @Field(() => [String])
   productImages: [string];
 
+  @Field(() => [String])
+  productMaterials: [string];
+
+  @Field(() => [String], { nullable: true })
+  productTags?: [string];
+
   @Field(() => String, { nullable: true })
   productDesc?: string;
+
+  @Field(() => String, { nullable: true })
+  productShippingCost?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  productWrapAvailable?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  productPersonalizable?: boolean;
 
   @Field(() => String)
   memberId: ObjectId;
 
   @Field(() => Date, { nullable: true })
   soldAt?: Date;
-  @Field(() => Date, { nullable: true })
-  deletedAt?: Date;
 
   @Field(() => Date, { nullable: true })
-  constructedAt?: Date;
+  deletedAt?: Date;
 
   @Field(() => Date, { nullable: true })
   createdAt?: Date;

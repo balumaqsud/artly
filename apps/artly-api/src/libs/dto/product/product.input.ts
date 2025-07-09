@@ -7,11 +7,7 @@ import {
   Length,
   Min,
 } from 'class-validator';
-import {
-  ProductLocation,
-  ProductStatus,
-  ProductType,
-} from '../../enums/product.enum';
+import { ProductStatus, ProductType } from '../../enums/product.enum';
 import { ObjectId } from 'mongoose';
 import { availableOptions, availableProductSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
@@ -23,20 +19,24 @@ export class ProductInput {
   productType: ProductType;
 
   @IsNotEmpty()
+  @Field(() => String)
+  productCategory: string;
+
+  @IsNotEmpty()
   @Field(() => ProductStatus)
   productStatus: ProductStatus;
 
   @IsNotEmpty()
-  @Field(() => ProductLocation)
-  propertyLocation: ProductLocation;
+  @Field(() => String)
+  productLocation: string;
 
   @IsNotEmpty()
   @Field(() => String)
-  propertyAddress: string;
+  productShippingTime: string;
 
   @IsNotEmpty()
   @Field(() => String)
-  propertyTitle: string;
+  productTitle: string;
 
   @IsNotEmpty()
   @Field(() => Int)
@@ -46,24 +46,32 @@ export class ProductInput {
   @Field(() => [String])
   productImages: string[];
 
+  @IsNotEmpty()
+  @Field(() => [String])
+  productMaterials: string[];
+
+  @IsOptional()
+  @Field(() => [String])
+  productTags: string[];
+
   @IsOptional()
   @Length(5, 500)
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
   @IsOptional()
-  @Field(() => Boolean, { nullable: true })
-  productBarter?: string;
+  @Field(() => String)
+  productShippingCost: string;
 
   @IsOptional()
-  @Field(() => Boolean, { nullable: true })
-  productRent?: string;
+  @Field(() => Boolean)
+  productWrapAvailable: boolean;
+
+  @IsOptional()
+  @Field(() => Boolean)
+  productPersonalizable: boolean;
 
   memberId?: ObjectId;
-
-  @IsOptional()
-  @Field(() => Date, { nullable: true })
-  constructedAt?: Date;
 }
 
 // additional inputs
@@ -102,8 +110,8 @@ class PISearch {
   memberId?: ObjectId;
 
   @IsOptional()
-  @Field(() => [ProductLocation], { nullable: true })
-  locationList?: ProductLocation[];
+  @Field(() => String, { nullable: true })
+  productLocation?: string;
 
   @IsOptional()
   @Field(() => [ProductType], { nullable: true })
@@ -208,8 +216,8 @@ class ALPISearch {
   productStatus?: ProductStatus;
 
   @IsOptional()
-  @Field(() => [ProductLocation], { nullable: true })
-  productLocationList?: ProductLocation[];
+  @Field(() => String, { nullable: true })
+  productLocation?: string;
 }
 
 @InputType()

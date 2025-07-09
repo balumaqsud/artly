@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ViewModule } from '../view/view.module';
 import { MemberModule } from '../member/member.module';
 import { LikeModule } from '../like/like.module';
+import { ProductModule } from '../product/product.module';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { LikeModule } from '../like/like.module';
     AuthModule,
     ViewModule,
     MemberModule,
-    LikeModule,
+    ProductModule,
   ],
   providers: [CommentResolver, CommentService],
   exports: [CommentService],
