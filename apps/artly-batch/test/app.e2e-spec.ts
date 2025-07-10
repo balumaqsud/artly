@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { ArtlyBatchModule } from './../src/artly-batch.module';
+import { ArtlyBatchModule } from '../src/batch.module';
 
 describe('ArtlyBatchController (e2e)', () => {
   let app: INestApplication;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ArtlyBatchService {
+export class BatchService {
   getHello(): string {
     return 'Hello World! artly batch api';
   }
