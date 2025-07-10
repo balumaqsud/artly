@@ -51,6 +51,9 @@ export class Product {
   @Field(() => [String])
   productMaterials: [string];
 
+  @Field(() => [String])
+  productColor: [string];
+
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
