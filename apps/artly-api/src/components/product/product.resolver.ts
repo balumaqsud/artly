@@ -7,6 +7,7 @@ import { UseGuards } from '@nestjs/common';
 import { Product, Products } from '../../libs/dto/product/product';
 import {
   AllProductsInquiry,
+  OrdinaryInquiry,
   ProductInput,
   ProductsInquiry,
   SellerProductsInquiry,
@@ -68,6 +69,28 @@ export class ProductResolver {
   ): Promise<Products> {
     console.log('query: getProducts');
     return await this.productService.getProducts(memberId, input);
+  }
+
+  //getFavorites
+  @UseGuards(WithoutGuard)
+  @Query((returns) => Products)
+  public async getFavorites(
+    @Args('input') input: OrdinaryInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Products> {
+    console.log('query: getFavorites');
+    return await this.productService.getFavorites(memberId, input);
+  }
+
+  //getVisited
+  @UseGuards(WithoutGuard)
+  @Query((returns) => Products)
+  public async getVisited(
+    @Args('input') input: OrdinaryInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Products> {
+    console.log('query: getVisited');
+    return await this.productService.getVisited(memberId, input);
   }
 
   //getProducts

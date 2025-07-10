@@ -56,7 +56,7 @@ export class LikeService {
     input: OrdinaryInquiry,
   ): Promise<Products> {
     const { page, limit } = input;
-    const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
+    const match: T = { likeGroup: LikeGroup.PRODUCT, memberId: memberId };
 
     const data: T = await this.likeModel
       .aggregate([

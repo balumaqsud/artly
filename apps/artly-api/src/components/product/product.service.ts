@@ -9,6 +9,7 @@ import { Product, Products } from '../../libs/dto/product/product';
 import { MemberService } from '../member/member.service';
 import {
   AllProductsInquiry,
+  OrdinaryInquiry,
   ProductInput,
   ProductsInquiry,
   SellerProductsInquiry,
@@ -179,6 +180,20 @@ export class ProductService {
     if (!result.length)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
     return result[0];
+  }
+
+  public async getFavorites(
+    memberId: ObjectId,
+    input: OrdinaryInquiry,
+  ): Promise<Products> {
+    return await this.likeService.getFavoriteProperties(memberId, input);
+  }
+
+  public async getVisited(
+    memberId: ObjectId,
+    input: OrdinaryInquiry,
+  ): Promise<Products> {
+    return await this.viewService.getVisited(memberId, input);
   }
 
   public async getSellerProducts(
