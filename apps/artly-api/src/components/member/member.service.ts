@@ -145,7 +145,7 @@ export class MemberService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              // lookUpAuthMemberLiked(memberId),
+              lookUpAuthMemberLiked(memberId),
             ],
             metaCounter: [{ $count: 'total' }],
           },

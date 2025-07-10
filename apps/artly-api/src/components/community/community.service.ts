@@ -18,7 +18,11 @@ import { ArticleStatus } from '../../libs/enums/community.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ArticleUpdate } from '../../libs/dto/board-article/article.update';
-import { lookUpMember, shapeId } from '../../libs/config';
+import {
+  lookUpAuthMemberLiked,
+  lookUpMember,
+  shapeId,
+} from '../../libs/config';
 
 @Injectable()
 export class CommunityService {
@@ -131,6 +135,7 @@ export class CommunityService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
+              lookUpAuthMemberLiked(memberId),
               lookUpMember,
               { $unwind: 'memberData' },
             ],

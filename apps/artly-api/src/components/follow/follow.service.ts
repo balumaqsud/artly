@@ -93,7 +93,6 @@ export class FollowService {
       targetKey: 'memberFollowers',
       modifier: -1,
     });
-
     return result;
   }
 

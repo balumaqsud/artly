@@ -16,7 +16,11 @@ import {
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ProductStatus } from '../../libs/enums/product.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
-import { lookUpMember, shapeId } from '../../libs/config';
+import {
+  lookUpAuthMemberLiked,
+  lookUpMember,
+  shapeId,
+} from '../../libs/config';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -25,6 +29,7 @@ import * as moment from 'moment';
 import { ViewService } from '../view/view.service';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import slugify from 'slugify';
+import { LikeService } from '../like/like.service';
 
 @Injectable()
 export class ProductService {
@@ -32,7 +37,7 @@ export class ProductService {
     @InjectModel('Product') private readonly productModel: Model<Product>,
     private memberService: MemberService,
     private viewService: ViewService,
-    // private likeService: LikeService,
+    private likeService: LikeService,
   ) {}
   //createProperty
   public async createProduct(input: ProductInput): Promise<Product> {
@@ -92,13 +97,13 @@ export class ProductService {
         //me liked
 
         //liked?
-        // const input: LikeInput = {
-        //   memberId: memberId,
-        //   likeRefId: productId,
-        //   likeGroup: LikeGroup.PRODUCT,
-        // };
-        // targetProduct.meLiked =
-        //   await this.likeService.checkLikeExistence(input);
+        const input: LikeInput = {
+          memberId: memberId,
+          likeRefId: productId,
+          likeGroup: LikeGroup.PRODUCT,
+        };
+        targetProduct.meLiked =
+          await this.likeService.checkLikeExistence(input);
       }
     }
     targetProduct.memberData = await this.memberService.getMember(
@@ -162,7 +167,7 @@ export class ProductService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              //   lookUpAuthMemberLiked(memberId),
+              lookUpAuthMemberLiked(memberId),
               lookUpMember,
               { $unwind: '$memberData' },
             ],
