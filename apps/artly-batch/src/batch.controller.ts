@@ -41,11 +41,11 @@ export class BatchController {
   }
 
   @Cron('40 00 01 * * *', { name: BATCH_TOP_PRODUCTS })
-  public async batchTopProperties() {
+  public async batchTopProducts() {
     try {
       this.logger['context'] = BATCH_TOP_PRODUCTS;
       this.logger.debug('Executed');
-      await this.batchService.batchTopProperties();
+      await this.batchService.batchTopProducts();
     } catch (error) {
       this.logger.error('error', error);
     }
