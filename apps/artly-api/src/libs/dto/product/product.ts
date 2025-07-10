@@ -12,8 +12,14 @@ export class Product {
   @Field(() => ProductType)
   productType: ProductType;
 
+  @Field(() => String)
+  productCategory: string;
+
   @Field(() => ProductStatus)
   productStatus: ProductStatus;
+
+  @Field(() => [String], { nullable: true })
+  productTags?: [string];
 
   @Field(() => String)
   productLocation: string;
@@ -45,9 +51,6 @@ export class Product {
   @Field(() => [String])
   productMaterials: [string];
 
-  @Field(() => [String], { nullable: true })
-  productTags?: [string];
-
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
@@ -59,6 +62,12 @@ export class Product {
 
   @Field(() => Boolean, { nullable: true })
   productPersonalizable?: boolean;
+
+  @Field(() => Int)
+  productStock: number;
+
+  @Field(() => String)
+  productSlug: string;
 
   @Field(() => String)
   memberId: ObjectId;
@@ -76,7 +85,6 @@ export class Product {
   updatedAt?: Date;
 
   ///
-
   @Field(() => Member, { nullable: true })
   memberData?: Member;
 

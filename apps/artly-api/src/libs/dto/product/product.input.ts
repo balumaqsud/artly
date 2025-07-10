@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { ProductStatus, ProductType } from '../../enums/product.enum';
 import { ObjectId } from 'mongoose';
-import { availableOptions, availableProductSorts } from '../../config';
+import { availableProductSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
 
 @InputType()
@@ -50,9 +50,13 @@ export class ProductInput {
   @Field(() => [String])
   productMaterials: string[];
 
-  @IsOptional()
+  @IsNotEmpty()
   @Field(() => [String])
   productTags: string[];
+
+  @IsNotEmpty()
+  @Field(() => Int)
+  productStock: number;
 
   @IsOptional()
   @Length(5, 500)
@@ -85,15 +89,6 @@ export class PricesRange {
 }
 
 @InputType()
-export class SquaresRange {
-  @Field(() => Int)
-  start: number;
-
-  @Field(() => Int)
-  end: number;
-}
-
-@InputType()
 export class PeriodsRange {
   @Field(() => Date)
   start: Date;
@@ -114,21 +109,8 @@ class PISearch {
   productLocation?: string;
 
   @IsOptional()
-  @Field(() => [ProductType], { nullable: true })
-  typeList?: ProductType[];
-
-  @IsOptional()
-  @Field(() => Int, { nullable: true })
-  roomsList?: number;
-
-  @IsOptional()
-  @Field(() => Int, { nullable: true })
-  bedsList?: number;
-
-  @IsOptional()
-  @IsIn(availableOptions, { each: true })
-  @Field(() => [String], { nullable: true })
-  options?: string[];
+  @Field(() => String, { nullable: true })
+  productTags?: String;
 
   @IsOptional()
   @Field(() => PricesRange, { nullable: true })
@@ -137,10 +119,6 @@ class PISearch {
   @IsOptional()
   @Field(() => PeriodsRange, { nullable: true })
   periodsRange?: PeriodsRange;
-
-  @IsOptional()
-  @Field(() => SquaresRange, { nullable: true })
-  squaresRange?: SquaresRange;
 
   @IsOptional()
   @Field(() => String, { nullable: true })

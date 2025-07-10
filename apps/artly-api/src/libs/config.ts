@@ -24,15 +24,13 @@ export const shapeId = (target: any) => {
 
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
-export const availableOptions = ['propertyBarter', 'propertyRent'];
-
 export const availableProductSorts = [
   'createdAt',
   'updatedAt',
-  'propertyRank',
-  'propertyViews',
-  'propertyLikes',
-  'propertyPrice',
+  'productRank',
+  'productViews',
+  'productLikes',
+  'productPrice',
 ];
 
 export const availableArticleSorts = [
