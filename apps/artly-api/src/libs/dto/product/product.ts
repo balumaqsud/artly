@@ -18,7 +18,7 @@ export class Product {
   @Field(() => ProductStatus)
   productStatus: ProductStatus;
 
-  @Field(() => [String], { nullable: true })
+  @Field(() => [String])
   productTags?: [string];
 
   @Field(() => String)
@@ -57,8 +57,8 @@ export class Product {
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
-  @Field(() => String, { nullable: true })
-  productShippingCost?: string;
+  @Field(() => Int, { nullable: true })
+  productShippingCost?: number;
 
   @Field(() => Boolean, { nullable: true })
   productWrapAvailable?: boolean;

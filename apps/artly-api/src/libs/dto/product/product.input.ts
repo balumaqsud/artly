@@ -39,8 +39,9 @@ export class ProductInput {
   productTitle: string;
 
   @IsNotEmpty()
+  @Min(0)
   @Field(() => Int)
-  propertyPrice: number;
+  productPrice: number;
 
   @IsNotEmpty()
   @Field(() => [String])
@@ -59,13 +60,18 @@ export class ProductInput {
   productStock: number;
 
   @IsOptional()
+  @Field(() => [String])
+  productColor?: string[];
+
+  @IsOptional()
   @Length(5, 500)
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
   @IsOptional()
-  @Field(() => String)
-  productShippingCost: string;
+  @Min(0)
+  @Field(() => Int, { nullable: true })
+  productShippingCost?: number;
 
   @IsOptional()
   @Field(() => Boolean)
