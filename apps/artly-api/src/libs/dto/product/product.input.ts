@@ -23,10 +23,6 @@ export class ProductInput {
   productCategory: string;
 
   @IsNotEmpty()
-  @Field(() => ProductStatus)
-  productStatus: ProductStatus;
-
-  @IsNotEmpty()
   @Field(() => String)
   productLocation: string;
 
@@ -74,11 +70,11 @@ export class ProductInput {
   productShippingCost?: number;
 
   @IsOptional()
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   productWrapAvailable: boolean;
 
   @IsOptional()
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   productPersonalizable: boolean;
 
   memberId?: ObjectId;
