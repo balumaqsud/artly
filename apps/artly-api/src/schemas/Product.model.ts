@@ -30,7 +30,10 @@ const ProductSchema = new Schema(
       required: true,
     },
 
-    productShippingTime: { type: String, required: true },
+    productShippingTime: {
+      type: String,
+      required: true,
+    },
 
     productTitle: {
       type: String,

@@ -127,6 +127,10 @@ class PISearch {
   periodsRange?: PeriodsRange;
 
   @IsOptional()
+  @Field(() => [ProductType], { nullable: true })
+  typeList?: ProductType[];
+
+  @IsOptional()
   @Field(() => String, { nullable: true })
   text?: string;
 }

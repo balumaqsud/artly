@@ -324,7 +324,6 @@ export class ProductService {
       typeList,
       periodsRange,
       pricesRange,
-      options,
       text,
     } = input.search;
 
@@ -348,12 +347,6 @@ export class ProductService {
       match.productTitle = {
         $regex: new RegExp(text, 'i'),
       };
-
-    if (options) {
-      match['$or'] = options.map((ele) => {
-        return { [ele]: true };
-      });
-    }
   }
   public async productStatsEditor(
     input: StatisticModifier,
