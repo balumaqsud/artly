@@ -62,14 +62,14 @@ export class BatchService {
   }
 
   public async batchTopProducts(): Promise<void> {
-    const properties: Product[] = await this.productModel
+    const products: Product[] = await this.productModel
       .find({
         productStatus: ProductStatus.ACTIVE,
         productRank: 0,
       })
       .exec();
 
-    const promisedList = properties.map(async (ele: Product) => {
+    const promisedList = products.map(async (ele: Product) => {
       const { _id, productLikes, productViews } = ele;
       const rank = productLikes * 2 + productViews * 1;
       return await this.productModel.findByIdAndUpdate(_id, {

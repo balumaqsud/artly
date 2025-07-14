@@ -135,7 +135,7 @@ class PISearch {
   text?: string;
 }
 
-//all properties input
+//all products input
 @InputType()
 export class ProductsInquiry {
   @IsNotEmpty()

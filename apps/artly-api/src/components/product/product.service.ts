@@ -137,7 +137,7 @@ export class ProductService {
     if (soldAt || deletedAt) {
       await this.memberService.memberStatsEditor({
         _id: memberId,
-        targetKey: 'memberProperties',
+        targetKey: 'memberProducts',
         modifier: -1,
       });
     }
@@ -186,7 +186,7 @@ export class ProductService {
     memberId: ObjectId,
     input: OrdinaryInquiry,
   ): Promise<Products> {
-    return await this.likeService.getFavoriteProperties(memberId, input);
+    return await this.likeService.getFavoriteProducts(memberId, input);
   }
 
   public async getVisited(

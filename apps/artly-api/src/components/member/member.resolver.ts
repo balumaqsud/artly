@@ -24,6 +24,7 @@ import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 export class MemberResolver {
@@ -49,6 +50,29 @@ export class MemberResolver {
     console.log('mutation: updateMember');
     delete input._id;
     return await this.memberService.updateMember(memberId, input);
+  }
+
+  @UseGuards(AuthGuard)
+  @Query(() => String)
+  public async checkAuth(
+    @AuthMember('memberNick')
+    memberNick: string,
+    @AuthMember('_id')
+    memberId: string,
+  ): Promise<string> {
+    console.log('Mutation: checkAuth');
+
+    return `hi, ${memberNick}, ${memberId}`;
+  }
+
+  @Roles(MemberType.USER, MemberType.SELLER)
+  @UseGuards(RolesGuard)
+  @Query(() => String)
+  public async checkAuthRoles(
+    @AuthMember() authMember: Member,
+  ): Promise<string> {
+    console.log('Mutation: checkAuthRoles');
+    return `Hi ${authMember.memberNick}, you are ${authMember.memberType} memberId: ${authMember._id}`;
   }
 
   @Query(() => Member)
@@ -143,6 +167,18 @@ export class MemberResolver {
     );
     await Promise.all(promisedList);
     return uploadedImages;
+  }
+
+  //liking
+  @UseGuards(AuthGuard)
+  @Mutation(() => Member)
+  public async likeTargetMember(
+    @Args('memberId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Member> {
+    console.log('Mutation: likeTargetMember');
+    const targetId = shapeId(input);
+    return await this.memberService.likeTargetMember(memberId, targetId);
   }
 
   //admin => authorization by roles guards
