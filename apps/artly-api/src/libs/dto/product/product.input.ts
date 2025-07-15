@@ -163,6 +163,26 @@ class APISearch {
   @IsOptional()
   @Field(() => ProductStatus, { nullable: true })
   productStatus?: ProductStatus;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productTitle?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productLocation?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productCategory?: string;
+
+  @IsOptional()
+  @Field(() => Number, { nullable: true })
+  productRank?: number;
+
+  @IsOptional()
+  @Field(() => Number, { nullable: true })
+  productPrice?: number;
 }
 
 @InputType()
@@ -202,6 +222,26 @@ class ALPISearch {
   @IsOptional()
   @Field(() => String, { nullable: true })
   productLocation?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productTitle?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productCategory?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productType?: string;
+
+  @IsOptional()
+  @Field(() => Number, { nullable: true })
+  productPrice?: number;
+
+  @IsOptional()
+  @Field(() => Number, { nullable: true })
+  productRank?: number;
 }
 
 @InputType()
