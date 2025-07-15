@@ -1,5 +1,9 @@
 import { Schema } from 'mongoose';
-import { ProductStatus, ProductType } from '../libs/enums/product.enum';
+import {
+  ProductStatus,
+  ProductType,
+  SHippingTimeType,
+} from '../libs/enums/product.enum';
 
 const ProductSchema = new Schema(
   {
@@ -32,7 +36,8 @@ const ProductSchema = new Schema(
 
     productShippingTime: {
       type: String,
-      required: true,
+      enum: SHippingTimeType,
+      default: SHippingTimeType.FAST,
     },
 
     productTitle: {

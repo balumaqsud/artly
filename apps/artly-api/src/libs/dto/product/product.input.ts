@@ -7,7 +7,11 @@ import {
   Length,
   Min,
 } from 'class-validator';
-import { ProductStatus, ProductType } from '../../enums/product.enum';
+import {
+  ProductStatus,
+  ProductType,
+  SHippingTimeType,
+} from '../../enums/product.enum';
 import { ObjectId } from 'mongoose';
 import { availableProductSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
@@ -27,8 +31,8 @@ export class ProductInput {
   productLocation: string;
 
   @IsNotEmpty()
-  @Field(() => String)
-  productShippingTime: string;
+  @Field(() => SHippingTimeType)
+  productShippingTime: SHippingTimeType;
 
   @IsNotEmpty()
   @Field(() => String)
@@ -153,8 +157,8 @@ export class ProductsInquiry {
   @Field(() => Direction, { nullable: true })
   direction?: Direction;
 
-  @IsNotEmpty()
-  @Field(() => PISearch)
+  @IsOptional()
+  @Field(() => PISearch, { nullable: true })
   search: PISearch;
 }
 
@@ -181,8 +185,8 @@ class APISearch {
   productRank?: number;
 
   @IsOptional()
-  @Field(() => Number, { nullable: true })
-  productPrice?: number;
+  @Field(() => PricesRange, { nullable: true })
+  pricesRange?: PricesRange;
 }
 
 @InputType()
@@ -206,8 +210,8 @@ export class SellerProductsInquiry {
   @Field(() => Direction, { nullable: true })
   direction?: Direction;
 
-  @IsNotEmpty()
-  @Field(() => APISearch)
+  @IsOptional()
+  @Field(() => APISearch, { nullable: true })
   search: APISearch;
 }
 
@@ -232,12 +236,12 @@ class ALPISearch {
   productCategory?: string;
 
   @IsOptional()
-  @Field(() => String, { nullable: true })
-  productType?: string;
+  @Field(() => [ProductType], { nullable: true })
+  typeList?: ProductType[];
 
   @IsOptional()
-  @Field(() => Number, { nullable: true })
-  productPrice?: number;
+  @Field(() => PricesRange, { nullable: true })
+  pricesRange?: PricesRange;
 
   @IsOptional()
   @Field(() => Number, { nullable: true })
@@ -265,8 +269,8 @@ export class AllProductsInquiry {
   @Field(() => Direction, { nullable: true })
   direction?: Direction;
 
-  @IsNotEmpty()
-  @Field(() => ALPISearch)
+  @IsOptional()
+  @Field(() => ALPISearch, { nullable: true })
   search: ALPISearch;
 }
 

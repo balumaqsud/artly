@@ -240,7 +240,15 @@ export class ProductService {
   public async getAllProductsByAdmin(
     input: AllProductsInquiry,
   ): Promise<Products> {
-    const { productStatus, productLocation } = input.search;
+    const {
+      productStatus,
+      productLocation,
+      productTitle,
+      productCategory,
+      typeList,
+      pricesRange,
+      productRank,
+    } = input.search ?? {};
 
     const match: T = {};
     const sort: T = {
@@ -248,7 +256,16 @@ export class ProductService {
     };
 
     if (productStatus) match.productStatus = productStatus;
-    if (productLocation) match.productLocation = { $in: productLocation };
+    if (productLocation) match.productLocation = productLocation;
+    if (productTitle) match.productTitle = productTitle;
+    if (productCategory) match.productCategory = productCategory;
+    if (typeList) match.productType = { $in: typeList };
+    if (pricesRange)
+      match.productPrice = {
+        $gte: pricesRange.start,
+        $lte: pricesRange.end,
+      };
+    if (productRank) match.productRank = productRank;
 
     const result = await this.productModel
       .aggregate([

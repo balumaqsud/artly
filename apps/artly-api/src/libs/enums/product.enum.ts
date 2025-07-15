@@ -25,3 +25,12 @@ export enum ProductStatus {
 registerEnumType(ProductStatus, {
   name: 'ProductStatus',
 });
+
+export enum SHippingTimeType {
+  TURBO = '24 hours',
+  FAST = '3-5 days',
+  SLOW = '7-10 days',
+}
+registerEnumType(SHippingTimeType, {
+  name: 'SHippingTimeType',
+});
