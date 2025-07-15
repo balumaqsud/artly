@@ -18,6 +18,7 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import { shapeId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class ProductResolver {
@@ -92,6 +93,18 @@ export class ProductResolver {
   ): Promise<Products> {
     console.log('query: getVisited');
     return await this.productService.getVisited(memberId, input);
+  }
+
+  //liking
+  @UseGuards(AuthGuard)
+  @Mutation(() => Product)
+  public async likeTargetProduct(
+    @Args('productId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Product> {
+    console.log('Mutation: likeTargetProduct');
+    const targetId = shapeId(input);
+    return await this.productService.likeTargetProduct(memberId, targetId);
   }
 
   //getProducts

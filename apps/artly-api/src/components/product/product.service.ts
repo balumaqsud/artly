@@ -68,6 +68,36 @@ export class ProductService {
     }
   }
 
+  public async likeTargetProduct(
+    memberId: ObjectId,
+    targetId: ObjectId,
+  ): Promise<Product> {
+    const target = await this.productModel
+      .findOne({
+        _id: targetId,
+        productStatus: ProductStatus.ACTIVE,
+      })
+      .exec();
+    if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    const input: LikeInput = {
+      memberId: memberId,
+      likeRefId: targetId,
+      likeGroup: LikeGroup.PRODUCT,
+    };
+
+    const modifier: number = await this.likeService.makeToggle(input);
+    const result = await this.productStatsEditor({
+      _id: targetId,
+      targetKey: 'productLikes',
+      modifier: modifier,
+    });
+    if (!result)
+      throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+
+    return result;
+  }
+
   //getProduct
   public async getProduct(
     memberId: ObjectId,
