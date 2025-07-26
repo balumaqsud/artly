@@ -23,6 +23,9 @@ import {
   lookUpMember,
   shapeId,
 } from '../../libs/config';
+import { LikeInput } from '../../libs/dto/like/like.input';
+import { LikeGroup } from '../../libs/enums/like.enum';
+import { LikeService } from '../like/like.service';
 
 @Injectable()
 export class CommunityService {
@@ -31,7 +34,7 @@ export class CommunityService {
     private readonly communityModel: Model<Article>,
     private memberService: MemberService,
     private viewService: ViewService,
-    // private likeService: LikeService,
+    private likeService: LikeService,
   ) {}
 
   public async createArticle(
@@ -149,6 +152,37 @@ export class CommunityService {
 
     return result[0];
   }
+
+  public async likeTargetArticle(
+    memberId: ObjectId,
+    targetId: ObjectId,
+  ): Promise<Article> {
+    const target = await this.communityModel
+      .findOne({
+        _id: targetId,
+        articleStatus: ArticleStatus.ACTIVE,
+      })
+      .exec();
+    if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    const input: LikeInput = {
+      memberId: memberId,
+      likeRefId: targetId,
+      likeGroup: LikeGroup.ARTICLE,
+    };
+
+    const modifier: number = await this.likeService.makeToggle(input);
+    const result = await this.articleStatsEditor({
+      _id: targetId,
+      targetKey: 'articleLikes',
+      modifier: modifier,
+    });
+    if (!result)
+      throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+
+    return result;
+  }
+
   //admin
   public async getAllArticlesByAdmin(
     input: AllArticlesInquiry,

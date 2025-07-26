@@ -63,6 +63,18 @@ export class CommunityResolver {
     return await this.communityService.getArticles(memberId, input);
   }
 
+  //liking
+  @UseGuards(AuthGuard)
+  @Mutation(() => Article)
+  public async likeTargetArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Article> {
+    console.log('Mutation: likeTargetArticle');
+    const targetId = shapeId(input);
+    return await this.communityService.likeTargetArticle(memberId, targetId);
+  }
+
   //admin
   //getAllArticlesByAdmin
   @Roles(MemberType.ADMIN)
