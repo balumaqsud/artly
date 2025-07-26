@@ -1,13 +1,16 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { NoticeService } from './notice.service';
-import { Notice } from '../../libs/dto/notice/notice';
+import { Notice, Notices } from '../../libs/dto/notice/notice';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UseGuards } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
-import { NoticeInput } from '../../libs/dto/notice/notice.input';
+import {
+  NoticeInput,
+  NoticesInquiry,
+} from '../../libs/dto/notice/notice.input';
 import { shapeId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { NoticeUpdate } from '../../libs/dto/notice/notice.update';
@@ -48,5 +51,15 @@ export class NoticeResolver {
     console.log('mutation, updateNotice');
     input._id = shapeId(input._id);
     return await this.noticeService.updateNotice(memberId, input);
+  }
+
+  @UseGuards(WithoutGuard)
+  @Query((returns) => Notices)
+  public async getNotices(
+    @Args('input') input: NoticesInquiry,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Notices> {
+    console.log('query, get notice');
+    return await this.noticeService.getNotices(memberId, input);
   }
 }

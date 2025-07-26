@@ -4,13 +4,17 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Notice } from '../../libs/dto/notice/notice';
+import { Notice, Notices } from '../../libs/dto/notice/notice';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
-import { NoticeInput } from '../../libs/dto/notice/notice.input';
-import { Message } from '../../libs/enums/common.enum';
+import {
+  NoticeInput,
+  NoticesInquiry,
+} from '../../libs/dto/notice/notice.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { NoticeStatus } from '../../libs/enums/notice.enum';
 import { NoticeUpdate } from '../../libs/dto/notice/notice.update';
+import { T } from '../../libs/types/common';
 
 @Injectable()
 export class NoticeService {
@@ -61,5 +65,40 @@ export class NoticeService {
     if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
     return result;
+  }
+
+  //getArticles
+  public async getNotices(
+    memberId: ObjectId,
+    input: NoticesInquiry,
+  ): Promise<Notices> {
+    const { noticeCategory, noticeStatus } = input.search;
+    const match: T = { articleStatus: NoticeStatus.ACTIVE };
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+
+    if (noticeCategory) match.noticeCategory = noticeCategory;
+    if (noticeStatus) match.noticeCategory = noticeStatus;
+    console.log('getNotices match:', match);
+    const result = await this.noticeModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
   }
 }
