@@ -6,15 +6,11 @@ import { NoticeCategory, NoticeStatus } from '../../enums/notice.enum';
 @InputType()
 export class NoticeInput {
   @IsNotEmpty()
-  @Field(() => String)
-  memberId: ObjectId | null;
-
-  @IsNotEmpty()
   @Field(() => NoticeCategory)
   noticeCategory: NoticeCategory;
 
   @IsOptional()
-  @Field(() => NoticeStatus)
+  @Field(() => NoticeStatus, { nullable: true })
   noticeStatus: NoticeStatus;
 
   @IsNotEmpty()
@@ -24,4 +20,6 @@ export class NoticeInput {
   @IsNotEmpty()
   @Field(() => String)
   noticeContent: string;
+
+  memberId?: ObjectId;
 }
