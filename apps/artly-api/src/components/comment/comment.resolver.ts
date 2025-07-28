@@ -23,7 +23,7 @@ export class CommentResolver {
 
   @UseGuards(AuthGuard)
   @Mutation((returns) => Comment)
-  public async createArticle(
+  public async createComment(
     @Args('input') input: CommentInput,
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Comment> {

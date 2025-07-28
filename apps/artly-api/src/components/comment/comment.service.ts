@@ -19,6 +19,12 @@ import { CommentUpdate } from '../../libs/dto/comment/comment.update';
 import { ArticleStatus } from '../../libs/enums/community.enum';
 import { lookUpMember } from '../../libs/config';
 import { T } from '../../libs/types/common';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import {
+  NotificationGroup,
+  NotificationType,
+} from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class CommentService {
@@ -28,8 +34,7 @@ export class CommentService {
     @InjectModel('Comment')
     private readonly commentModel: Model<Comment>,
     private memberService: MemberService,
-    private viewService: ViewService,
-    private productService: ProductService,
+    private notificationService: NotificationService,
   ) {}
   //createComment
   public async createComment(
@@ -45,8 +50,18 @@ export class CommentService {
       throw new BadRequestException(Message.CREATE_FAILED);
     }
     if (!input.parentCommentId) {
+      let notificationInput: NotificationInput;
       switch (input.commentGroup) {
         case CommentGroup.ARTICLE:
+          notificationInput = {
+            notificationType: NotificationType.COMMENT,
+            notificationGroup: NotificationGroup.ARTICLE,
+            targetRefId: input.commentRefId,
+            memberId: memberId,
+          };
+
+          await this.notificationService.createNotification(notificationInput);
+
           await this.boardArticleService.boardArticleStatsEditor({
             _id: input.commentRefId,
             targetKey: 'articleComments',
@@ -54,6 +69,14 @@ export class CommentService {
           });
 
         case CommentGroup.PROPERTY:
+          notificationInput = {
+            notificationType: NotificationType.COMMENT,
+            notificationGroup: NotificationGroup.PROPERTY,
+            targetRefId: input.commentRefId,
+            memberId: memberId,
+          };
+          await this.notificationService.createNotification(notificationInput);
+
           await this.propertyService.propertyStatsEditor({
             _id: input.commentRefId,
             targetKey: 'propertyComments',
@@ -61,6 +84,14 @@ export class CommentService {
           });
 
         case CommentGroup.MEMBER:
+          notificationInput = {
+            notificationType: NotificationType.COMMENT,
+            notificationGroup: NotificationGroup.MEMBER,
+            targetRefId: input.commentRefId,
+            memberId: memberId,
+          };
+          await this.notificationService.createNotification(notificationInput);
+
           await this.memberService.memberStatsEditor({
             _id: input.commentRefId,
             targetKey: 'memberComments',
