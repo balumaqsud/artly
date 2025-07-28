@@ -73,18 +73,15 @@ export class NoticeService {
     input: NoticesInquiry,
   ): Promise<Notices> {
     const { noticeCategory, noticeStatus } = input.search;
-    const match: T = { articleStatus: NoticeStatus.ACTIVE };
-    const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
-    };
+    const match: T = { noticeStatus: NoticeStatus.ACTIVE };
 
     if (noticeCategory) match.noticeCategory = noticeCategory;
-    if (noticeStatus) match.noticeCategory = noticeStatus;
+    if (noticeStatus) match.noticeStatus = noticeStatus;
     console.log('getNotices match:', match);
     const result = await this.noticeModel
       .aggregate([
         { $match: match },
-        { $sort: sort },
+        { $sort: { createdAt: -1 } },
         {
           $facet: {
             list: [

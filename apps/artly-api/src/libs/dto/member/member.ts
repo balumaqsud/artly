@@ -105,6 +105,7 @@ export class TotalCounter {
 export class Members {
   @Field(() => [Member])
   list: Member[];
+
   @Field(() => [TotalCounter], { nullable: true })
   metaCounter: TotalCounter[];
 }
