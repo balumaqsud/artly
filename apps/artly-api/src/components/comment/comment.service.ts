@@ -43,19 +43,30 @@ export class CommentService {
   ): Promise<Comment> {
     input.memberId = memberId;
     let result: Comment | null;
+    let notificationInput: NotificationInput;
 
     try {
       result = await this.commentModel.create(input);
+
+      notificationInput = {
+        notificationType: NotificationType.COMMENT,
+        notificationGroup: NotificationGroup.COMMENT,
+        notificationMessage: input.commentContent,
+        targetRefId: input.commentRefId,
+        memberId: memberId,
+      };
+
+      await this.notificationService.createNotification(notificationInput);
     } catch (error) {
       throw new BadRequestException(Message.CREATE_FAILED);
     }
     if (!input.parentCommentId) {
-      let notificationInput: NotificationInput;
       switch (input.commentGroup) {
         case CommentGroup.ARTICLE:
           notificationInput = {
             notificationType: NotificationType.COMMENT,
             notificationGroup: NotificationGroup.ARTICLE,
+            notificationMessage: input.commentContent,
             targetRefId: input.commentRefId,
             memberId: memberId,
           };
@@ -72,6 +83,7 @@ export class CommentService {
           notificationInput = {
             notificationType: NotificationType.COMMENT,
             notificationGroup: NotificationGroup.PROPERTY,
+            notificationMessage: input.commentContent,
             targetRefId: input.commentRefId,
             memberId: memberId,
           };
@@ -87,6 +99,7 @@ export class CommentService {
           notificationInput = {
             notificationType: NotificationType.COMMENT,
             notificationGroup: NotificationGroup.MEMBER,
+            notificationMessage: input.commentContent,
             targetRefId: input.commentRefId,
             memberId: memberId,
           };

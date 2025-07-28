@@ -1,8 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import {
   NotificationGroup,
-  NotificationStatus,
   NotificationType,
 } from '../../enums/notification.enum';
 import { ObjectId } from 'mongoose';
@@ -16,6 +15,10 @@ export class NotificationInput {
   @IsNotEmpty()
   @Field(() => NotificationGroup)
   notificationGroup: NotificationGroup;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  notificationMessage?: string;
 
   @IsNotEmpty()
   @Field(() => String)

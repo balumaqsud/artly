@@ -22,6 +22,9 @@ export class Notification {
   notificationGroup: NotificationGroup;
 
   @Field(() => String)
+  notificationMessage: string;
+
+  @Field(() => String)
   targetRefId: ObjectId;
 
   @Field(() => String)

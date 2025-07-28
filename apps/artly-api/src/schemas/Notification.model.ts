@@ -25,6 +25,10 @@ const NotificationSchema = new Schema(
       required: true,
     },
 
+    notificationMessage: {
+      type: String,
+    },
+
     targetRefId: {
       type: Schema.Types.ObjectId,
       required: true,
