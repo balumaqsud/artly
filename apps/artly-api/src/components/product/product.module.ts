@@ -7,6 +7,7 @@ import { MemberModule } from '../member/member.module';
 import { LikeModule } from '../like/like.module';
 import { ProductResolver } from './product.resolver';
 import { ProductService } from './product.service';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProductService } from './product.service';
     ViewModule,
     MemberModule,
     LikeModule,
+    NotificationModule,
   ],
   providers: [ProductResolver, ProductService],
   exports: [ProductService],

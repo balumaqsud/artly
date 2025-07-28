@@ -31,6 +31,12 @@ import { ViewService } from '../view/view.service';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import slugify from 'slugify';
 import { LikeService } from '../like/like.service';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import {
+  NotificationGroup,
+  NotificationType,
+} from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ProductService {
@@ -39,6 +45,7 @@ export class ProductService {
     private memberService: MemberService,
     private viewService: ViewService,
     private likeService: LikeService,
+    private notificationService: NotificationService,
   ) {}
   //createProperty
   public async createProduct(input: ProductInput): Promise<Product> {
@@ -87,6 +94,16 @@ export class ProductService {
     };
 
     const modifier: number = await this.likeService.makeToggle(input);
+
+    //notification
+    const notificationInput: NotificationInput = {
+      notificationType: NotificationType.LIKE,
+      notificationGroup: NotificationGroup.PROPERTY,
+      targetRefId: targetId,
+      memberId: memberId,
+    };
+
+    await this.notificationService.createNotification(notificationInput);
     const result = await this.productStatsEditor({
       _id: targetId,
       targetKey: 'productLikes',

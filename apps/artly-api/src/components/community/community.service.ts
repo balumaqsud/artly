@@ -26,6 +26,12 @@ import {
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
+import {
+  NotificationGroup,
+  NotificationType,
+} from '../../libs/enums/notification.enum';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class CommunityService {
@@ -35,6 +41,7 @@ export class CommunityService {
     private memberService: MemberService,
     private viewService: ViewService,
     private likeService: LikeService,
+    private notificationService: NotificationService,
   ) {}
 
   public async createArticle(
@@ -172,6 +179,16 @@ export class CommunityService {
     };
 
     const modifier: number = await this.likeService.makeToggle(input);
+
+    //notification
+    const notificationInput: NotificationInput = {
+      notificationType: NotificationType.LIKE,
+      notificationGroup: NotificationGroup.ARTICLE,
+      targetRefId: targetId,
+      memberId: memberId,
+    };
+    await this.notificationService.createNotification(notificationInput);
+
     const result = await this.articleStatsEditor({
       _id: targetId,
       targetKey: 'articleLikes',
