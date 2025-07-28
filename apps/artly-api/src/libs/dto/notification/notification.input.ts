@@ -14,16 +14,8 @@ export class NotificationInput {
   notificationType: NotificationType;
 
   @IsNotEmpty()
-  @Field(() => NotificationStatus)
-  notificationStatus: NotificationStatus;
-
-  @IsNotEmpty()
   @Field(() => NotificationGroup)
   notificationGroup: NotificationGroup;
-
-  @IsNotEmpty()
-  @Field(() => String)
-  notificationMessage: string;
 
   @IsNotEmpty()
   @Field(() => String)

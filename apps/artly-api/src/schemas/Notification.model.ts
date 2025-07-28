@@ -8,24 +8,22 @@ import {
 const NotificationSchema = new Schema(
   {
     notificationType: {
-      type: NotificationType,
+      type: String,
       enum: NotificationType,
       required: true,
     },
 
     notificationStatus: {
-      type: NotificationStatus,
+      type: String,
       enum: NotificationStatus,
-      required: true,
+      default: NotificationStatus.WAIT,
     },
 
     notificationGroup: {
-      type: NotificationGroup,
+      type: String,
       enum: NotificationGroup,
       required: true,
     },
-
-    notificationMessage: { type: String, required: true },
 
     targetRefId: {
       type: Schema.Types.ObjectId,
@@ -38,7 +36,7 @@ const NotificationSchema = new Schema(
       ref: 'Member',
     },
   },
-  { timestamps: true, collection: 'likes' },
+  { timestamps: true, collection: 'notifications' },
 );
 
 NotificationSchema.index({ memberId: 1, targetRefId: 1 }, { unique: true });

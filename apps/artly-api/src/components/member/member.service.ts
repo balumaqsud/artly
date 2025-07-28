@@ -24,6 +24,12 @@ import { lookUpAuthMemberLiked, shapeId } from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import {
+  NotificationGroup,
+  NotificationType,
+} from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class MemberService {
@@ -32,6 +38,7 @@ export class MemberService {
     private readonly authService: AuthService,
     private readonly viewService: ViewService,
     private readonly likeService: LikeService,
+    private readonly notificationService: NotificationService,
   ) {}
   public async signup(input: MemberInput): Promise<Member> {
     //hash
@@ -213,6 +220,16 @@ export class MemberService {
     };
 
     const modifier: number = await this.likeService.makeToggle(input);
+
+    const notificationInput: NotificationInput = {
+      notificationType: NotificationType.LIKE,
+      notificationGroup: NotificationGroup.MEMBER,
+      targetRefId: targetId,
+      memberId: memberId,
+    };
+
+    await this.notificationService.createNotification(notificationInput);
+
     const result = await this.memberStatsEditor({
       _id: targetId,
       targetKey: 'memberLikes',
