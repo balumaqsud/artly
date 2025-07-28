@@ -52,6 +52,16 @@ export class NoticeResolver {
     input._id = shapeId(input._id);
     return await this.noticeService.updateNotice(memberId, input);
   }
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation((returns) => Notice)
+  public async removeNotice(
+    @Args('input') input: String,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<Notice> {
+    const noticeId = shapeId(input);
+    return await this.noticeService.removeNotice(memberId, noticeId);
+  }
 
   @UseGuards(WithoutGuard)
   @Query((returns) => Notices)

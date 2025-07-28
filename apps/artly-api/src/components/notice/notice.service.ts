@@ -101,4 +101,16 @@ export class NoticeService {
 
     return result[0];
   }
+
+  public async removeNotice(
+    memberId: ObjectId,
+    noticeId: ObjectId,
+  ): Promise<Notice> {
+    const search = { memberId: memberId, _id: noticeId };
+    const result = await this.noticeModel.findOneAndDelete(search);
+
+    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+    return result;
+  }
 }
