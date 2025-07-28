@@ -6,6 +6,7 @@ import { ProductService } from '../product/product.service';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { Notification } from '../../libs/dto/notification/notification';
 import { Message } from '../../libs/enums/common.enum';
+import { NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class NotificationService {
@@ -18,6 +19,17 @@ export class NotificationService {
     input: NotificationInput,
   ): Promise<Notification> {
     try {
+      const existing = await this.notificationModel.findOne({
+        memberId: input.memberId,
+        targetRefId: input.targetRefId,
+        notificationType: NotificationType.LIKE,
+      });
+
+      if (existing) {
+        await this.notificationModel.deleteOne({ _id: existing._id });
+        return existing;
+      }
+
       return await this.notificationModel.create(input);
     } catch (error) {
       console.log('createNotification err:', error);
