@@ -1,5 +1,5 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { Field, InputType, Int } from '@nestjs/graphql';
+import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import {
   NotificationGroup,
   NotificationType,
@@ -27,4 +27,17 @@ export class NotificationInput {
   @IsNotEmpty()
   @Field(() => String)
   memberId?: ObjectId;
+}
+
+@InputType()
+export class NotificationsInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
 }

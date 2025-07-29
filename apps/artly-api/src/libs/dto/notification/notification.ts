@@ -21,8 +21,8 @@ export class Notification {
   @Field(() => NotificationGroup)
   notificationGroup: NotificationGroup;
 
-  @Field(() => String)
-  notificationMessage: string;
+  @Field(() => String, { nullable: true })
+  notificationMessage?: string;
 
   @Field(() => String)
   targetRefId: ObjectId;
