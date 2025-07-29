@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order, OrderItem } from '../../libs/dto/order/order';
+import { Order, OrderItem, Orders } from '../../libs/dto/order/order';
 import { Model, ObjectId } from 'mongoose';
 import { Member } from '../../libs/dto/member/member';
 import { OrderInquiry, OrderItemInput } from '../../libs/dto/order/order.input';
@@ -21,10 +21,9 @@ export class OrderService {
   ) {}
 
   public async createOrder(
-    member: Member,
+    memberId: ObjectId,
     input: OrderItemInput[],
   ): Promise<Order> {
-    const memberId = shapeId(member._id);
     const amount = input.reduce((total: number, item: OrderItemInput) => {
       return total + item.itemPrice * item.itemQuantity;
     }, 0);
@@ -62,7 +61,7 @@ export class OrderService {
   public async getMyOrders(
     memberId: ObjectId,
     inquiry: OrderInquiry,
-  ): Promise<any> {
+  ): Promise<Orders> {
     // const memberId = shapeId(member._id);
     const matches = {
       memberId: memberId,
@@ -94,19 +93,17 @@ export class OrderService {
       .exec();
 
     if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-    return result;
+    return result[0];
   }
 
   public async updateOrder(
     memberId: ObjectId,
     input: OrderUpdateInput,
   ): Promise<Order> {
-    // const memberId = shapeId(member._id);
-    const orderId = shapeId(input.orderId);
     const orderStatus = input.orderStatus;
     const result = await this.orderModel
       .findOneAndUpdate(
-        { memberId: memberId, _id: orderId },
+        { memberId: memberId, _id: input.orderId },
         { orderStatus: orderStatus },
         { new: true },
       )
