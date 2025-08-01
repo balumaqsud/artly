@@ -1,18 +1,18 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum CommentStatus {
-	ACTIVE = 'ACTIVE',
-	DELETE = 'DELETE',
+  ACTIVE = 'ACTIVE',
+  DELETE = 'DELETE',
 }
 registerEnumType(CommentStatus, {
-	name: 'CommentStatus',
+  name: 'CommentStatus',
 });
 
 export enum CommentGroup {
-	MEMBER = 'MEMBER',
-	ARTICLE = 'ARTICLE',
-	PROPERTY = 'PROPERTY',
+  MEMBER = 'MEMBER',
+  ARTICLE = 'ARTICLE',
+  PRODUCT = 'PRODUCT',
 }
 registerEnumType(CommentGroup, {
-	name: 'CommentGroup',
+  name: 'CommentGroup',
 });

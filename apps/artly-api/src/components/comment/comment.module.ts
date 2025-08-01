@@ -9,6 +9,7 @@ import { MemberModule } from '../member/member.module';
 import { LikeModule } from '../like/like.module';
 import { ProductModule } from '../product/product.module';
 import { NotificationModule } from '../notification/notification.module';
+import { CommunityModule } from '../community/community.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { NotificationModule } from '../notification/notification.module';
     ViewModule,
     MemberModule,
     ProductModule,
+    CommunityModule,
     NotificationModule,
   ],
   providers: [CommentResolver, CommentService],

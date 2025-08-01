@@ -37,7 +37,7 @@ export class ProductResolver {
     return await this.productService.createProduct(input);
   }
 
-  //getProperty
+  //getproduct
   @UseGuards(WithoutGuard)
   @Query(() => Product)
   public async getProduct(
@@ -49,7 +49,7 @@ export class ProductResolver {
     return await this.productService.getProduct(memberId, productId);
   }
 
-  //update Property
+  //update product
   @Roles(MemberType.SELLER)
   @UseGuards(RolesGuard)
   @Mutation(() => Product)

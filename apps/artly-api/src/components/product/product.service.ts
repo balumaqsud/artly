@@ -47,7 +47,7 @@ export class ProductService {
     private likeService: LikeService,
     private notificationService: NotificationService,
   ) {}
-  //createProperty
+  //createProduct
   public async createProduct(input: ProductInput): Promise<Product> {
     console.log('executed: createProduct');
     const slug = slugify(input.productTitle, { lower: true, strict: true });
@@ -98,7 +98,7 @@ export class ProductService {
     //notification
     const notificationInput: NotificationInput = {
       notificationType: NotificationType.LIKE,
-      notificationGroup: NotificationGroup.PROPERTY,
+      notificationGroup: NotificationGroup.PRODUCT,
       targetRefId: targetId,
       memberId: memberId,
     };

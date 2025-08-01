@@ -25,15 +25,16 @@ import {
   NotificationGroup,
   NotificationType,
 } from '../../libs/enums/notification.enum';
+import { CommunityService } from '../community/community.service';
 
 @Injectable()
 export class CommentService {
-  boardArticleService: any;
-  propertyService: any;
   constructor(
     @InjectModel('Comment')
     private readonly commentModel: Model<Comment>,
     private memberService: MemberService,
+    private communityService: CommunityService,
+    private productService: ProductService,
     private notificationService: NotificationService,
   ) {}
   //createComment
@@ -47,71 +48,88 @@ export class CommentService {
 
     try {
       result = await this.commentModel.create(input);
-
-      notificationInput = {
-        notificationType: NotificationType.COMMENT,
-        notificationGroup: NotificationGroup.COMMENT,
-        notificationMessage: input.commentContent,
-        targetRefId: input.commentRefId,
-        memberId: memberId,
-      };
-
-      await this.notificationService.createNotification(notificationInput);
     } catch (error) {
+      console.error('Error creating comment:', error);
       throw new BadRequestException(Message.CREATE_FAILED);
     }
-    if (!input.parentCommentId) {
-      switch (input.commentGroup) {
-        case CommentGroup.ARTICLE:
-          notificationInput = {
-            notificationType: NotificationType.COMMENT,
-            notificationGroup: NotificationGroup.ARTICLE,
-            notificationMessage: input.commentContent,
-            targetRefId: input.commentRefId,
-            memberId: memberId,
-          };
 
-          await this.notificationService.createNotification(notificationInput);
+    try {
+      if (input.parentCommentId === null) {
+        switch (input.commentGroup) {
+          case CommentGroup.ARTICLE:
+            notificationInput = {
+              notificationType: NotificationType.COMMENT,
+              notificationGroup: NotificationGroup.ARTICLE,
+              notificationMessage: input.commentContent,
+              targetRefId: input.commentRefId,
+              memberId: memberId,
+            };
 
-          await this.boardArticleService.boardArticleStatsEditor({
-            _id: input.commentRefId,
-            targetKey: 'articleComments',
-            modifier: 1,
-          });
+            await this.notificationService.createNotification(
+              notificationInput,
+            );
 
-        case CommentGroup.PROPERTY:
-          notificationInput = {
-            notificationType: NotificationType.COMMENT,
-            notificationGroup: NotificationGroup.PROPERTY,
-            notificationMessage: input.commentContent,
-            targetRefId: input.commentRefId,
-            memberId: memberId,
-          };
-          await this.notificationService.createNotification(notificationInput);
+            await this.communityService.articleStatsEditor({
+              _id: input.commentRefId,
+              targetKey: 'articleComments',
+              modifier: 1,
+            });
+            break;
 
-          await this.propertyService.propertyStatsEditor({
-            _id: input.commentRefId,
-            targetKey: 'propertyComments',
-            modifier: 1,
-          });
+          case CommentGroup.PRODUCT:
+            notificationInput = {
+              notificationType: NotificationType.COMMENT,
+              notificationGroup: NotificationGroup.PRODUCT,
+              notificationMessage: input.commentContent,
+              targetRefId: input.commentRefId,
+              memberId: memberId,
+            };
+            await this.notificationService.createNotification(
+              notificationInput,
+            );
 
-        case CommentGroup.MEMBER:
-          notificationInput = {
-            notificationType: NotificationType.COMMENT,
-            notificationGroup: NotificationGroup.MEMBER,
-            notificationMessage: input.commentContent,
-            targetRefId: input.commentRefId,
-            memberId: memberId,
-          };
-          await this.notificationService.createNotification(notificationInput);
+            await this.productService.productStatsEditor({
+              _id: input.commentRefId,
+              targetKey: 'productComments',
+              modifier: 1,
+            });
 
-          await this.memberService.memberStatsEditor({
-            _id: input.commentRefId,
-            targetKey: 'memberComments',
-            modifier: 1,
-          });
+            break;
+
+          case CommentGroup.MEMBER:
+            notificationInput = {
+              notificationType: NotificationType.COMMENT,
+              notificationGroup: NotificationGroup.MEMBER,
+              notificationMessage: input.commentContent,
+              targetRefId: input.commentRefId,
+              memberId: memberId,
+            };
+            await this.notificationService.createNotification(
+              notificationInput,
+            );
+
+            await this.memberService.memberStatsEditor({
+              _id: input.commentRefId,
+              targetKey: 'memberComments',
+              modifier: 1,
+            });
+            break;
+        }
+      } else {
+        notificationInput = {
+          notificationType: NotificationType.COMMENT,
+          notificationGroup: NotificationGroup.COMMENT,
+          notificationMessage: input.commentContent,
+          targetRefId: input.commentRefId,
+          memberId: memberId,
+        };
+
+        await this.notificationService.createNotification(notificationInput);
       }
+    } catch (error) {
+      console.error('Non-critical error after comment creation:', error);
     }
+
     if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
     return result;
   }
