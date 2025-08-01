@@ -45,7 +45,6 @@ export class OrderResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Order> {
     console.log('mutation, updateOrder');
-    const orderId = shapeId(input.orderId);
     return await this.orderService.updateOrder(memberId, input);
   }
 }

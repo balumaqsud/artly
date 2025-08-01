@@ -106,10 +106,11 @@ export class OrderService {
     memberId: ObjectId,
     input: OrderUpdateInput,
   ): Promise<Order> {
-    const orderStatus = input.orderStatus;
+    const { orderId, orderStatus } = input;
+    const id = shapeId(orderId);
     const result = await this.orderModel
       .findOneAndUpdate(
-        { memberId: memberId, _id: input.orderId },
+        { memberId: memberId, _id: id },
         { orderStatus: orderStatus },
         { new: true },
       )
