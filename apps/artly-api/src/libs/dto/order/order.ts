@@ -62,8 +62,8 @@ export class Order {
 
 @ObjectType()
 export class Orders {
-  @Field(() => [Orders])
-  list: Orders[];
+  @Field(() => [Order])
+  list: Order[];
 
   @Field(() => [TotalCounter], { nullable: true })
   metaCounter: TotalCounter[];

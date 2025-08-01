@@ -31,6 +31,6 @@ export class OrderInquiry {
   @Field(() => Int)
   limit: number;
 
-  @Field(() => OrderStatus)
-  orderStatus: OrderStatus;
+  @Field(() => OrderStatus, { nullable: true })
+  orderStatus?: OrderStatus;
 }

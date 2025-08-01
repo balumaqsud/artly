@@ -49,6 +49,24 @@ export const lookUpMember = {
   },
 };
 
+export const lookUpOrders = {
+  $lookup: {
+    from: 'orderItems',
+    localField: '_id',
+    foreignField: 'orderId',
+    as: 'orderItems',
+  },
+};
+
+export const lookUpProducts = {
+  $lookup: {
+    from: 'products',
+    localField: 'orderItems.productId',
+    foreignField: '_id',
+    as: 'productData',
+  },
+};
+
 // IMAGE CONFIGURATION (config.js)
 
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];

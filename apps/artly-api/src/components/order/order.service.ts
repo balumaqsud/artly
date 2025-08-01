@@ -8,11 +8,12 @@ import {
   OrderInquiry,
   OrderItemInput,
 } from '../../libs/dto/order/order.input';
-import { shapeId } from '../../libs/config';
+import { lookUpOrders, lookUpProducts, shapeId } from '../../libs/config';
 import { Message } from '../../libs/enums/common.enum';
 import { OrderStatus } from '../../libs/enums/order.enum';
 import { MemberService } from '../member/member.service';
 import { OrderUpdateInput } from '../../libs/dto/order/order.update';
+import { T } from '../../libs/types/common';
 
 @Injectable()
 export class OrderService {
@@ -64,32 +65,34 @@ export class OrderService {
 
   public async getMyOrders(
     memberId: ObjectId,
-    inquiry: OrderInquiry,
+    input: OrderInquiry,
   ): Promise<Orders> {
-    const matches = {
+    const { orderStatus } = input;
+    const matches: T = {
       memberId: memberId,
-      orderStatus: inquiry.orderStatus,
     };
+    if (orderStatus) {
+      matches.orderStatus = orderStatus;
+    }
     const result = await this.orderModel
       .aggregate([
         { $match: matches },
         { $sort: { updatedAt: -1 } },
-        { $skip: (inquiry.page - 1) * inquiry.limit },
-        { $limit: inquiry.limit },
         {
-          $lookup: {
-            from: 'orderItems',
-            localField: '_id',
-            foreignField: 'orderId',
-            as: 'orderItems',
-          },
-        },
-        {
-          $lookup: {
-            from: 'products',
-            localField: 'orderItems.productId', //123
-            foreignField: '_id', //123
-            as: 'productData',
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookUpOrders,
+              {
+                $unwind: '$orderItems',
+              },
+              lookUpProducts,
+              {
+                $unwind: '$productData',
+              },
+            ],
+            metaCounter: [{ $count: 'total' }],
           },
         },
       ])
