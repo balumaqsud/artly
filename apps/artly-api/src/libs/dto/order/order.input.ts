@@ -18,6 +18,12 @@ export class OrderItemInput {
 }
 
 @InputType()
+export class CreateOrderInput {
+  @Field(() => [OrderItemInput])
+  items: OrderItemInput[];
+}
+
+@InputType()
 export class OrderInquiry {
   @Field(() => Int)
   page: number;

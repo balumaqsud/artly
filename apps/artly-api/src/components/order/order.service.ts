@@ -3,7 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderItem, Orders } from '../../libs/dto/order/order';
 import { Model, ObjectId } from 'mongoose';
 import { Member } from '../../libs/dto/member/member';
-import { OrderInquiry, OrderItemInput } from '../../libs/dto/order/order.input';
+import {
+  CreateOrderInput,
+  OrderInquiry,
+  OrderItemInput,
+} from '../../libs/dto/order/order.input';
 import { shapeId } from '../../libs/config';
 import { Message } from '../../libs/enums/common.enum';
 import { OrderStatus } from '../../libs/enums/order.enum';
@@ -22,9 +26,9 @@ export class OrderService {
 
   public async createOrder(
     memberId: ObjectId,
-    input: OrderItemInput[],
+    input: CreateOrderInput,
   ): Promise<Order> {
-    const amount = input.reduce((total: number, item: OrderItemInput) => {
+    const amount = input.items.reduce((total: number, item: OrderItemInput) => {
       return total + item.itemPrice * item.itemQuantity;
     }, 0);
     const delivery = amount <= 100 ? 5 : 0;
@@ -45,13 +49,13 @@ export class OrderService {
   }
   private async recordOrderItems(
     orderId: ObjectId,
-    input: OrderItemInput[],
+    input: CreateOrderInput,
   ): Promise<void> {
-    const list = input.map(async (item: OrderItemInput) => {
+    const list = input.items.map(async (item: OrderItemInput) => {
       item.orderId = orderId;
       item.productId = shapeId(item.productId);
       await this.orderItemsModel.create(item);
-      return 'inserted';
+      return 'recorded';
     });
 
     const orderItemsState = await Promise.all(list);
@@ -62,7 +66,6 @@ export class OrderService {
     memberId: ObjectId,
     inquiry: OrderInquiry,
   ): Promise<Orders> {
-    // const memberId = shapeId(member._id);
     const matches = {
       memberId: memberId,
       orderStatus: inquiry.orderStatus,
@@ -111,7 +114,7 @@ export class OrderService {
 
     if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-    if (orderStatus === OrderStatus.FINISH) {
+    if (orderStatus === OrderStatus.CONFIRMED) {
       await this.memberService.memberStatsEditor({
         _id: memberId,
         targetKey: 'memberPoints',

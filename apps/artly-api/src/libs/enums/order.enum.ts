@@ -1,5 +1,11 @@
 export enum OrderStatus {
-  PAUSE = 'PAUSE',
-  FINISH = 'FINISH',
-  DELETE = 'DELETE',
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
 }
+
+import { registerEnumType } from '@nestjs/graphql';
+
+registerEnumType(OrderStatus, {
+  name: 'OrderStatus', // must match usage in @Field(() => OrderStatus)
+});
