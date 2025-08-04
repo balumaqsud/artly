@@ -274,6 +274,7 @@ export class CommunityService {
     input: StatisticModifier,
   ): Promise<Article | null> {
     const { _id, targetKey, modifier } = input;
+    shapeId(_id);
     return await this.communityModel
       .findOneAndUpdate(
         _id,

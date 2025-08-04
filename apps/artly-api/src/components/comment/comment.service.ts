@@ -38,6 +38,7 @@ export class CommentService {
     private notificationService: NotificationService,
   ) {}
   //createComment
+
   public async createComment(
     memberId: ObjectId,
     input: CommentInput,
@@ -53,81 +54,71 @@ export class CommentService {
       throw new BadRequestException(Message.CREATE_FAILED);
     }
 
-    try {
-      if (input.parentCommentId === null) {
-        switch (input.commentGroup) {
-          case CommentGroup.ARTICLE:
-            notificationInput = {
-              notificationType: NotificationType.COMMENT,
-              notificationGroup: NotificationGroup.ARTICLE,
-              notificationMessage: input.commentContent,
-              targetRefId: input.commentRefId,
-              memberId: memberId,
-            };
+    if (!input.parentCommentId) {
+      switch (input.commentGroup) {
+        case CommentGroup.ARTICLE:
+          notificationInput = {
+            notificationType: NotificationType.COMMENT,
+            notificationGroup: NotificationGroup.ARTICLE,
+            notificationMessage: input.commentContent,
+            targetRefId: input.commentRefId,
+            memberId: memberId,
+          };
 
-            await this.notificationService.createNotification(
-              notificationInput,
-            );
+          await this.notificationService.createNotification(notificationInput);
 
-            await this.communityService.articleStatsEditor({
-              _id: input.commentRefId,
-              targetKey: 'articleComments',
-              modifier: 1,
-            });
-            break;
+          await this.communityService.articleStatsEditor({
+            _id: input.commentRefId,
+            targetKey: 'articleComments',
+            modifier: 1,
+          });
+          break;
 
-          case CommentGroup.PRODUCT:
-            notificationInput = {
-              notificationType: NotificationType.COMMENT,
-              notificationGroup: NotificationGroup.PRODUCT,
-              notificationMessage: input.commentContent,
-              targetRefId: input.commentRefId,
-              memberId: memberId,
-            };
-            await this.notificationService.createNotification(
-              notificationInput,
-            );
+        case CommentGroup.PRODUCT:
+          notificationInput = {
+            notificationType: NotificationType.COMMENT,
+            notificationGroup: NotificationGroup.PRODUCT,
+            notificationMessage: input.commentContent,
+            targetRefId: input.commentRefId,
+            memberId: memberId,
+          };
+          await this.notificationService.createNotification(notificationInput);
 
-            await this.productService.productStatsEditor({
-              _id: input.commentRefId,
-              targetKey: 'productComments',
-              modifier: 1,
-            });
+          await this.productService.productStatsEditor({
+            _id: input.commentRefId,
+            targetKey: 'productComments',
+            modifier: 1,
+          });
 
-            break;
+          break;
 
-          case CommentGroup.MEMBER:
-            notificationInput = {
-              notificationType: NotificationType.COMMENT,
-              notificationGroup: NotificationGroup.MEMBER,
-              notificationMessage: input.commentContent,
-              targetRefId: input.commentRefId,
-              memberId: memberId,
-            };
-            await this.notificationService.createNotification(
-              notificationInput,
-            );
+        case CommentGroup.MEMBER:
+          notificationInput = {
+            notificationType: NotificationType.COMMENT,
+            notificationGroup: NotificationGroup.MEMBER,
+            notificationMessage: input.commentContent,
+            targetRefId: input.commentRefId,
+            memberId: memberId,
+          };
+          await this.notificationService.createNotification(notificationInput);
 
-            await this.memberService.memberStatsEditor({
-              _id: input.commentRefId,
-              targetKey: 'memberComments',
-              modifier: 1,
-            });
-            break;
-        }
-      } else {
-        notificationInput = {
-          notificationType: NotificationType.COMMENT,
-          notificationGroup: NotificationGroup.COMMENT,
-          notificationMessage: input.commentContent,
-          targetRefId: input.commentRefId,
-          memberId: memberId,
-        };
-
-        await this.notificationService.createNotification(notificationInput);
+          await this.memberService.memberStatsEditor({
+            _id: input.commentRefId,
+            targetKey: 'memberComments',
+            modifier: 1,
+          });
+          break;
       }
-    } catch (error) {
-      console.error('Non-critical error after comment creation:', error);
+    } else {
+      notificationInput = {
+        notificationType: NotificationType.COMMENT,
+        notificationGroup: NotificationGroup.COMMENT,
+        notificationMessage: input.commentContent,
+        targetRefId: input.commentRefId,
+        memberId: memberId,
+      };
+
+      await this.notificationService.createNotification(notificationInput);
     }
 
     if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);

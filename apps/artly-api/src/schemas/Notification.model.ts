@@ -43,9 +43,4 @@ const NotificationSchema = new Schema(
   { timestamps: true, collection: 'notifications' },
 );
 
-NotificationSchema.index(
-  { memberId: 1, targetRefId: 1, notificationGroup: 1 },
-  { unique: true },
-);
-
 export default NotificationSchema;

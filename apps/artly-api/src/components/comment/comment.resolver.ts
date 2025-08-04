@@ -28,6 +28,10 @@ export class CommentResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Comment> {
     console.log('mutation, create comment');
+    input.commentRefId = shapeId(input.commentRefId);
+    if (input.parentCommentId) {
+      input.parentCommentId = shapeId(input.parentCommentId);
+    }
     return await this.commentService.createComment(memberId, input);
   }
 

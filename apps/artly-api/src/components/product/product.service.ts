@@ -416,6 +416,7 @@ export class ProductService {
     input: StatisticModifier,
   ): Promise<Product | null> {
     const { _id, targetKey, modifier } = input;
+    shapeId(_id);
     return await this.productModel
       .findOneAndUpdate(
         _id,
