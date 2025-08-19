@@ -30,7 +30,7 @@ export class MemberInput {
 
   @IsOptional()
   @Field(() => MemberAuthType, { nullable: true })
-  memberAuthType: MemberType;
+  memberAuthType: MemberAuthType;
 }
 
 @InputType()
@@ -66,7 +66,7 @@ export class SellersInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn([availableSellers])
+  @IsIn(availableSellers)
   @Field(() => String, { nullable: true })
   sort?: string;
 
@@ -74,9 +74,9 @@ export class SellersInquiry {
   @Field(() => Direction, { nullable: true })
   direction?: Direction;
 
-  @IsNotEmpty()
-  @Field(() => AiClass)
-  search: AiClass;
+  @IsOptional()
+  @Field(() => AiClass, { nullable: true })
+  search?: AiClass;
 }
 
 @InputType()
@@ -107,7 +107,7 @@ export class MembersInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn([availableMembers])
+  @IsIn(availableMembers)
   @Field(() => String, { nullable: true })
   sort?: string;
 

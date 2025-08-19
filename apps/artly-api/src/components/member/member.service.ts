@@ -134,7 +134,7 @@ export class MemberService {
     memberId: ObjectId,
     input: SellersInquiry,
   ): Promise<Members> {
-    const { text } = input.search;
+    const { text } = input.search || {};
     const match: T = {
       memberType: MemberType.SELLER,
       memberStatus: MemberStatus.ACTIVE,

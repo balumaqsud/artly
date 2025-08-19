@@ -23,10 +23,9 @@ import { SocketModule } from './socket/socket.module';
       //global integration of error handling
       formatError: (error: T) => {
         const graphqlError = {
-          code: error?.extensions.code,
-          message: error?.extensions?.exception?.response?.message
-            ? error?.extensions?.response?.message
-            : error?.message,
+          code: error?.extensions?.code,
+          message:
+            error?.extensions?.exception?.response?.message ?? error?.message,
         };
         return graphqlError;
       },
