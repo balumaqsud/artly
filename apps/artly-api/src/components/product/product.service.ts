@@ -112,6 +112,15 @@ export class ProductService {
     if (!result)
       throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
+    // reflect current like state on the returned product
+    const likeCheckInput: LikeInput = {
+      memberId: memberId,
+      likeRefId: targetId,
+      likeGroup: LikeGroup.PRODUCT,
+    };
+    result.meLiked = await this.likeService.checkLikeExistence(likeCheckInput);
+    if (!result.meLiked) result.meLiked = [];
+
     return result;
   }
 
@@ -142,17 +151,18 @@ export class ProductService {
           modifier: 1,
         });
         targetProduct.productViews++;
-        //me liked
-
-        //liked?
-        const input: LikeInput = {
-          memberId: memberId,
-          likeRefId: productId,
-          likeGroup: LikeGroup.PRODUCT,
-        };
-        targetProduct.meLiked =
-          await this.likeService.checkLikeExistence(input);
       }
+      // liked?
+      const input: LikeInput = {
+        memberId: memberId,
+        likeRefId: productId,
+        likeGroup: LikeGroup.PRODUCT,
+      };
+      targetProduct.meLiked = await this.likeService.checkLikeExistence(input);
+    }
+    // ensure meLiked is at least an empty array for GraphQL consumers
+    if (!targetProduct.meLiked) {
+      targetProduct.meLiked = [];
     }
     targetProduct.memberData = await this.memberService.getMember(
       null,
@@ -419,7 +429,7 @@ export class ProductService {
     shapeId(_id);
     return await this.productModel
       .findOneAndUpdate(
-        _id,
+        { _id },
         {
           $inc: { [targetKey]: modifier },
         },
