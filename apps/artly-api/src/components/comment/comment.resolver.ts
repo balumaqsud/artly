@@ -57,15 +57,14 @@ export class CommentResolver {
     return await this.commentService.getComments(memberId, input);
   }
 
-  //admin
-  @Roles(MemberType.ADMIN)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard)
   @Mutation((returns) => Comment)
-  public async removeCommentByAdmin(
+  public async removeComment(
     @Args('commentId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
   ): Promise<Comment> {
-    console.log('mutation: removeCommentByAdmin');
+    console.log('mutation: removeComment');
     const commentId = shapeId(input);
-    return await this.commentService.removeCommentByAdmin(commentId);
+    return await this.commentService.removeComment(commentId, memberId);
   }
 }
