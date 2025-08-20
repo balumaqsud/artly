@@ -18,10 +18,17 @@ export class ViewService {
     if (!result) {
       console.log('view created');
       return await this.viewModel.create(input);
-    } else return null;
+    } else {
+      console.log('View already exists, returning null');
+      return null;
+    }
   }
   private async checkViewExistence(input: ViewInput): Promise<View | null> {
-    const search: T = { memberId: input.memberId, viewRefId: input.viewRefId };
+    const search: T = {
+      memberId: input.memberId,
+      viewRefId: input.viewRefId,
+      viewGroup: input.viewGroup,
+    };
     return await this.viewModel.findOne(search).exec();
   }
 

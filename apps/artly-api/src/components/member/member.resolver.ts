@@ -75,6 +75,7 @@ export class MemberResolver {
     return `Hi ${authMember.memberNick}, you are ${authMember.memberType} memberId: ${authMember._id}`;
   }
 
+  @UseGuards(WithoutGuard)
   @Query(() => Member)
   public async getMember(
     @Args('memberId') input: string,

@@ -176,30 +176,53 @@ export class ProductService {
     memberId: ObjectId,
     input: ProductUpdate,
   ): Promise<Product> {
-    let { productStatus, soldAt, deletedAt } = input;
-    const search: T = {
-      _id: input._id,
-      memberId: memberId,
-      productStatus: ProductStatus.ACTIVE,
-    };
+    try {
+      let { productStatus, soldAt, deletedAt } = input;
 
-    if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
-    if (productStatus === ProductStatus.DELETE) deletedAt = moment().toDate();
-
-    const result = await this.productModel.findOneAndUpdate(search, input, {
-      new: true,
-    });
-    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-
-    if (soldAt || deletedAt) {
-      await this.memberService.memberStatsEditor({
-        _id: memberId,
-        targetKey: 'memberProducts',
-        modifier: -1,
+      // Validate that the product exists and belongs to the member
+      const existingProduct = await this.productModel.findOne({
+        _id: input._id,
+        memberId: memberId,
+        productStatus: ProductStatus.ACTIVE,
       });
-    }
 
-    return result;
+      if (!existingProduct) {
+        throw new BadRequestException(
+          'Product not found or you do not have permission to update it',
+        );
+      }
+
+      const search: T = {
+        _id: input._id,
+        memberId: memberId,
+        productStatus: ProductStatus.ACTIVE,
+      };
+
+      if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
+      if (productStatus === ProductStatus.DELETE) deletedAt = moment().toDate();
+
+      const result = await this.productModel.findOneAndUpdate(search, input, {
+        new: true,
+      });
+      if (!result)
+        throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+      if (soldAt || deletedAt) {
+        await this.memberService.memberStatsEditor({
+          _id: memberId,
+          targetKey: 'memberProducts',
+          modifier: -1,
+        });
+      }
+
+      return result;
+    } catch (error) {
+      console.error('updateProduct error:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to update product');
+    }
   }
 
   //////////get All products method

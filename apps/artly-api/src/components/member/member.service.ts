@@ -104,6 +104,12 @@ export class MemberService {
     memberId: ObjectId | null,
     targetId: ObjectId,
   ): Promise<Member> {
+    console.log(
+      'getMember called with memberId:',
+      memberId,
+      'targetId:',
+      targetId,
+    );
     const search: T = {
       _id: targetId,
       memberStatus: { $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK] },
@@ -112,21 +118,43 @@ export class MemberService {
     if (!result) {
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
     }
+    console.log('Found member with current memberViews:', result.memberViews);
 
-    if (memberId) {
+    if (memberId && memberId.toString() !== targetId.toString()) {
+      console.log(
+        'Recording view for member:',
+        targetId,
+        'by member:',
+        memberId,
+      );
       const viewInput: ViewInput = {
         memberId: memberId,
         viewRefId: targetId,
         viewGroup: ViewGroup.MEMBER,
       };
       const newView = await this.viewService.recordView(viewInput);
+      console.log('New view created:', !!newView);
       if (newView) {
+        console.log('Incrementing memberViews for member:', targetId);
         await this.memberModel
           .findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true })
           .exec();
         result.memberViews++;
+        console.log('memberViews incremented to:', result.memberViews);
+      } else {
+        console.log('View already exists, not incrementing memberViews');
       }
+    } else if (memberId) {
+      console.log('Member viewing themselves, not recording view');
     }
+
+    // Fetch the latest member data to ensure we have the updated memberViews
+    const updatedResult = await this.memberModel.findOne(search).exec();
+    if (updatedResult) {
+      result.memberViews = updatedResult.memberViews;
+    }
+
+    console.log('Final memberViews count:', result.memberViews);
     return result;
   }
 

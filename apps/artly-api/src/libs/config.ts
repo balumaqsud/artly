@@ -20,7 +20,14 @@ export const availableMembers = [
 ];
 
 export const shapeId = (target: any) => {
-  return typeof target === 'string' ? new ObjectId(target) : target;
+  try {
+    if (!target) {
+      throw new Error('Target is required');
+    }
+    return typeof target === 'string' ? new ObjectId(target) : target;
+  } catch (error) {
+    throw new Error(`Invalid ObjectId format: ${target}`);
+  }
 };
 
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
