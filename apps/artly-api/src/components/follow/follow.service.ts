@@ -16,6 +16,7 @@ import {
   lookupFollowerData,
   lookupFollowingData,
 } from '../../libs/config';
+import { LikeGroup } from '../../libs/enums/like.enum';
 
 @Injectable()
 export class FollowService {
@@ -115,7 +116,7 @@ export class FollowService {
             list: [
               { $skip: (page - 1) * limit },
               { $limit: limit },
-              lookUpAuthMemberLiked(memberId, '$followingId'), //liked?
+              lookUpAuthMemberLiked(memberId, '$followingId', LikeGroup.MEMBER), //liked?
               lookUpAuthMemberFollowed({
                 followerId: memberId,
                 followingId: '$followingId',
@@ -153,7 +154,7 @@ export class FollowService {
             list: [
               { $skip: (page - 1) * limit },
               { $limit: limit },
-              lookUpAuthMemberLiked(memberId, '$followerId'), //liked?
+              lookUpAuthMemberLiked(memberId, '$followerId', LikeGroup.MEMBER), //liked?
               lookUpAuthMemberFollowed({
                 followerId: memberId,
                 followingId: '$followerId',

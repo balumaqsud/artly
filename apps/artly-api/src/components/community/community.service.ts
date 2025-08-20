@@ -145,7 +145,7 @@ export class CommunityService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              lookUpAuthMemberLiked(memberId),
+              lookUpAuthMemberLiked(memberId, '$_id', LikeGroup.ARTICLE),
               lookUpMember,
               { $unwind: '$memberData' },
             ],

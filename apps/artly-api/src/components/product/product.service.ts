@@ -225,7 +225,7 @@ export class ProductService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              lookUpAuthMemberLiked(memberId),
+              lookUpAuthMemberLiked(memberId, '$_id', LikeGroup.PRODUCT),
               lookUpMember,
               { $unwind: '$memberData' },
             ],

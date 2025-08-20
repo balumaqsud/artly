@@ -2,6 +2,7 @@ import { ObjectId } from 'bson';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { T } from './types/common';
+import { LikeGroup } from './enums/like.enum';
 
 export const availableSellers = [
   'createdAt',
@@ -125,6 +126,7 @@ export const lookupVisit = {
 export const lookUpAuthMemberLiked = (
   memberId: T,
   targetRefId: string = '$_id',
+  likeGroup?: LikeGroup,
 ) => {
   return {
     $lookup: {
@@ -133,6 +135,7 @@ export const lookUpAuthMemberLiked = (
         localLikeRefId: targetRefId,
         localMemberId: memberId,
         localMyFavorite: true,
+        localLikeGroup: likeGroup,
       },
       pipeline: [
         {
@@ -141,6 +144,9 @@ export const lookUpAuthMemberLiked = (
               $and: [
                 { $eq: ['$likeRefId', '$$localLikeRefId'] },
                 { $eq: ['$memberId', '$$localMemberId'] },
+                ...(likeGroup
+                  ? [{ $eq: ['$likeGroup', '$$localLikeGroup'] }]
+                  : []),
               ],
             },
           },
