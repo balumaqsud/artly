@@ -162,7 +162,9 @@ export class MemberService {
     memberId: ObjectId,
     input: SellersInquiry,
   ): Promise<Members> {
+    console.log('getSellers input:', JSON.stringify(input, null, 2));
     const { text } = input.search || {};
+    console.log('Extracted text:', text);
     const match: T = {
       memberType: MemberType.SELLER,
       memberStatus: MemberStatus.ACTIVE,
@@ -172,8 +174,17 @@ export class MemberService {
       [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
     };
     if (text) {
-      match.memberNick = { $regex: new RegExp(text, 'i') };
+      // Search across multiple fields for better results
+      match.$or = [
+        { memberNick: { $regex: new RegExp(text, 'i') } },
+        { memberFullName: { $regex: new RegExp(text, 'i') } },
+        { memberPhone: { $regex: new RegExp(text, 'i') } },
+      ];
+      console.log('Added text search to match:', match);
     }
+
+    console.log('Final match object:', JSON.stringify(match, null, 2));
+    console.log('Sort object:', JSON.stringify(sort, null, 2));
 
     const result = await this.memberModel
       .aggregate([
@@ -191,6 +202,9 @@ export class MemberService {
         },
       ])
       .exec();
+
+    console.log('Query result count:', result[0]?.list?.length || 0);
+    console.log('Total count:', result[0]?.metaCounter?.[0]?.total || 0);
 
     if (!result.length)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);

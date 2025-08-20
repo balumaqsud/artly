@@ -93,6 +93,7 @@ export class MemberResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Members> {
     console.log('Query: getSellers');
+    console.log('Resolver input:', JSON.stringify(input, null, 2));
     return await this.memberService.getSellers(memberId, input);
   }
 
