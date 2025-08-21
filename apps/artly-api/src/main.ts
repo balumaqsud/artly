@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.enableCors({ origin: true, credentials: true }); //cors enabling
   app.use(graphqlUploadExpress({ maxFileSize: 15000000, maxFiles: 10 })); // upload requirements
-  app.use('./uploads', express.static('./uploads')); // opening this folder for everyone
+  app.use('/uploads', express.static('./uploads')); // opening this folder for everyone
   app.useWebSocketAdapter(new WsAdapter(app));
   await app.listen(process.env.PORT_API ?? 3000);
 }

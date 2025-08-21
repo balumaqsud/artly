@@ -20,7 +20,11 @@ import { ViewService } from '../view/view.service';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
-import { lookUpAuthMemberLiked, shapeId } from '../../libs/config';
+import {
+  lookUpAuthMemberLiked,
+  lookUpAuthMemberFollowed,
+  shapeId,
+} from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
@@ -110,16 +114,39 @@ export class MemberService {
       'targetId:',
       targetId,
     );
+
     const search: T = {
       _id: targetId,
       memberStatus: { $in: [MemberStatus.ACTIVE, MemberStatus.BLOCK] },
     };
-    const result = await this.memberModel.findOne(search).exec();
-    if (!result) {
+
+    // Use aggregation to include meFollowed and meLiked fields
+    const pipeline: any[] = [{ $match: search }];
+
+    // Add lookups for authenticated users
+    if (memberId) {
+      // Add meFollowed lookup
+      pipeline.push(
+        lookUpAuthMemberFollowed({
+          followerId: memberId,
+          followingId: '$_id',
+        }),
+      );
+
+      // Add meLiked lookup
+      pipeline.push(lookUpAuthMemberLiked(memberId, '$_id', LikeGroup.MEMBER));
+    }
+
+    const result = await this.memberModel.aggregate(pipeline).exec();
+
+    if (!result || result.length === 0) {
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
     }
-    console.log('Found member with current memberViews:', result.memberViews);
 
+    const member = result[0];
+    console.log('Found member with current memberViews:', member.memberViews);
+
+    // Handle view recording and memberViews increment
     if (memberId && memberId.toString() !== targetId.toString()) {
       console.log(
         'Recording view for member:',
@@ -139,8 +166,8 @@ export class MemberService {
         await this.memberModel
           .findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true })
           .exec();
-        result.memberViews++;
-        console.log('memberViews incremented to:', result.memberViews);
+        member.memberViews++;
+        console.log('memberViews incremented to:', member.memberViews);
       } else {
         console.log('View already exists, not incrementing memberViews');
       }
@@ -151,11 +178,18 @@ export class MemberService {
     // Fetch the latest member data to ensure we have the updated memberViews
     const updatedResult = await this.memberModel.findOne(search).exec();
     if (updatedResult) {
-      result.memberViews = updatedResult.memberViews;
+      member.memberViews = updatedResult.memberViews;
     }
 
-    console.log('Final memberViews count:', result.memberViews);
-    return result;
+    // Ensure meFollowed and meLiked are arrays for GraphQL
+    if (!member.meFollowed) member.meFollowed = [];
+    if (!member.meLiked) member.meLiked = [];
+
+    console.log('Final memberViews count:', member.memberViews);
+    console.log('meFollowed:', member.meFollowed);
+    console.log('meLiked:', member.meLiked);
+
+    return member;
   }
 
   public async getSellers(

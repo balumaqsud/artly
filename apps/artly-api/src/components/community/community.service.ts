@@ -68,9 +68,29 @@ export class CommunityService {
     articleId: ObjectId,
   ): Promise<Article> {
     const search = { _id: articleId, articleStatus: ArticleStatus.ACTIVE };
-    const result = await this.communityModel.findOne(search).exec();
 
-    if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    // Use aggregation to include meLiked field
+    const pipeline: any[] = [{ $match: search }];
+
+    // Add lookups for authenticated users
+    if (memberId) {
+      // Add meLiked lookup
+      pipeline.push(lookUpAuthMemberLiked(memberId, '$_id', LikeGroup.ARTICLE));
+    }
+
+    // Add member lookup
+    pipeline.push(lookUpMember);
+    pipeline.push({ $unwind: '$memberData' });
+
+    const result = await this.communityModel.aggregate(pipeline).exec();
+
+    if (!result || result.length === 0) {
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    }
+
+    const article = result[0];
+
+    // Handle view recording and articleViews increment
     if (memberId) {
       const viewInput = {
         memberId: memberId,
@@ -84,16 +104,16 @@ export class CommunityService {
           targetKey: 'articleViews',
           modifier: 1,
         });
-        result.articleViews++;
+        article.articleViews++;
       }
-      //liked
     }
-    result.memberData = await this.memberService.getMember(
-      null,
-      result.memberId,
-    );
 
-    return result;
+    // Ensure meLiked is an array for GraphQL
+    if (!article.meLiked) {
+      article.meLiked = [];
+    }
+
+    return article;
   }
 
   public async updateArticle(

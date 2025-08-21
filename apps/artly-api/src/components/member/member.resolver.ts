@@ -22,7 +22,8 @@ import { getSerialForImage, shapeId, validMimeTypes } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import { createWriteStream } from 'fs';
+import { createWriteStream, mkdirSync } from 'fs';
+import { join } from 'path';
 import { Message } from '../../libs/enums/common.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
@@ -103,28 +104,59 @@ export class MemberResolver {
   public async imageUploader(
     @Args({ name: 'file', type: () => GraphQLUpload })
     { createReadStream, filename, mimetype }: FileUpload,
-    @Args('target') target: String,
+    @Args('target') target: string,
   ): Promise<string> {
     console.log('Mutation: imageUploader');
+    console.log('Uploading file:', filename, 'to target:', target);
 
-    if (!filename) throw new BadRequestException(Message.UPLOAD_FAILED);
-    const validMime = validMimeTypes.includes(mimetype);
-    if (!validMime)
-      throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
+    try {
+      if (!filename) throw new BadRequestException(Message.UPLOAD_FAILED);
 
-    const imageName = getSerialForImage(filename);
-    const url = `uploads/${target}/${imageName}`;
-    const stream = createReadStream();
+      const validMime = validMimeTypes.includes(mimetype);
+      if (!validMime) {
+        throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
+      }
 
-    const result = await new Promise((resolve, reject) => {
-      stream
-        .pipe(createWriteStream(url))
-        .on('finish', async () => resolve(true))
-        .on('error', () => reject(false));
-    });
-    if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED);
+      const imageName = getSerialForImage(filename);
+      const targetDir = join('uploads', target);
+      const filePath = join(targetDir, imageName);
 
-    return `a: ${url}`;
+      // Create target directory if it doesn't exist
+      try {
+        mkdirSync(targetDir, { recursive: true });
+      } catch (error) {
+        console.error('Error creating directory:', error);
+        throw new BadRequestException('Failed to create upload directory');
+      }
+
+      const stream = createReadStream();
+
+      const result = await new Promise((resolve, reject) => {
+        stream
+          .pipe(createWriteStream(filePath))
+          .on('finish', () => resolve(true))
+          .on('error', (error) => {
+            console.error('File write error:', error);
+            reject(error);
+          });
+      });
+
+      if (!result) {
+        throw new InternalServerErrorException(Message.UPLOAD_FAILED);
+      }
+
+      console.log('File uploaded successfully:', filePath);
+      return filePath;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      if (
+        error instanceof BadRequestException ||
+        error instanceof InternalServerErrorException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException('File upload failed');
+    }
   }
 
   @UseGuards(AuthGuard)
@@ -132,43 +164,63 @@ export class MemberResolver {
   public async imagesUploader(
     @Args('files', { type: () => [GraphQLUpload] })
     files: Promise<FileUpload>[],
-    @Args('target') target: String,
+    @Args('target') target: string,
   ): Promise<string[]> {
     console.log('Mutation: imagesUploader');
 
     const uploadedImages: string[] = [];
+    const targetDir = join('uploads', target);
+
+    // Create target directory if it doesn't exist
+    try {
+      mkdirSync(targetDir, { recursive: true });
+    } catch (error) {
+      console.error('Error creating directory:', error);
+      throw new BadRequestException('Failed to create upload directory');
+    }
+
     const promisedList = files.map(
-      async (
-        img: Promise<FileUpload>,
-        index: number,
-      ): Promise<Promise<void>> => {
+      async (img: Promise<FileUpload>, index: number): Promise<void> => {
         try {
           const { filename, mimetype, encoding, createReadStream } = await img;
 
+          if (!filename) {
+            console.log('Skipping file without filename');
+            return;
+          }
+
           const validMime = validMimeTypes.includes(mimetype);
-          if (!validMime)
-            throw new BadRequestException(Message.PROVIDE_ALLOWED_FORMAT);
+          if (!validMime) {
+            console.log('Invalid mime type:', mimetype);
+            return;
+          }
 
           const imageName = getSerialForImage(filename);
-          const url = `uploads/${target}/${imageName}`;
+          const filePath = join(targetDir, imageName);
           const stream = createReadStream();
 
           const result = await new Promise((resolve, reject) => {
             stream
-              .pipe(createWriteStream(url))
+              .pipe(createWriteStream(filePath))
               .on('finish', () => resolve(true))
-              .on('error', () => reject(false));
+              .on('error', (error) => {
+                console.error('File write error:', error);
+                reject(error);
+              });
           });
-          if (!result) throw new BadRequestException(Message.UPLOAD_FAILED);
 
-          uploadedImages[index] = url;
+          if (result) {
+            uploadedImages[index] = filePath;
+            console.log('File uploaded successfully:', filePath);
+          }
         } catch (err) {
-          console.log('Error, file missing!');
+          console.error('Error uploading file:', err);
         }
       },
     );
+
     await Promise.all(promisedList);
-    return uploadedImages;
+    return uploadedImages.filter(Boolean); // Remove any undefined entries
   }
 
   //liking

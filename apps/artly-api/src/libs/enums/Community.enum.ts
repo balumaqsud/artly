@@ -4,7 +4,6 @@ export enum ArticleCategory {
   FREE = 'FREE',
   RECOMMEND = 'RECOMMEND',
   NEW = 'NEW',
-  OLD = 'OLD',
 }
 registerEnumType(ArticleCategory, {
   name: 'ArticleCategory',

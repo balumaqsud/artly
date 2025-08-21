@@ -183,12 +183,57 @@ export class CommentService {
     commentId: ObjectId,
     memberId: ObjectId,
   ): Promise<Comment> {
+    // First, get the comment to know its group and reference ID
+    const comment = await this.commentModel.findOne({
+      _id: commentId,
+      memberId: memberId,
+      commentStatus: CommentStatus.ACTIVE,
+    });
+
+    if (!comment) {
+      throw new InternalServerErrorException(Message.REMOVE_FAILED);
+    }
+
+    // Delete the comment
     const result = await this.commentModel.findOneAndDelete({
       _id: commentId,
       memberId: memberId,
       commentStatus: CommentStatus.ACTIVE,
     });
-    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+    if (!result) {
+      throw new InternalServerErrorException(Message.REMOVE_FAILED);
+    }
+
+    // Decrease comment count for the related entity (only for top-level comments, not replies)
+    if (!comment.parentCommentId) {
+      switch (comment.commentGroup) {
+        case CommentGroup.ARTICLE:
+          await this.communityService.articleStatsEditor({
+            _id: comment.commentRefId,
+            targetKey: 'articleComments',
+            modifier: -1,
+          });
+          break;
+
+        case CommentGroup.PRODUCT:
+          await this.productService.productStatsEditor({
+            _id: comment.commentRefId,
+            targetKey: 'productComments',
+            modifier: -1,
+          });
+          break;
+
+        case CommentGroup.MEMBER:
+          await this.memberService.memberStatsEditor({
+            _id: comment.commentRefId,
+            targetKey: 'memberComments',
+            modifier: -1,
+          });
+          break;
+      }
+    }
+
     return result;
   }
 }
