@@ -197,13 +197,6 @@ export class CommentService {
       throw new InternalServerErrorException(Message.REMOVE_FAILED);
     }
 
-    console.log('Found comment:', {
-      commentGroup: comment.commentGroup,
-      commentRefId: comment.commentRefId,
-      parentCommentId: comment.parentCommentId,
-      isTopLevel: !comment.parentCommentId,
-    });
-
     // Delete the comment
     const result = await this.commentModel.findOneAndDelete({
       _id: commentId,
@@ -218,17 +211,12 @@ export class CommentService {
 
     console.log('Comment deleted successfully');
 
-    // Decrease comment count for the related entity (only for top-level comments, not replies)
     if (!comment.parentCommentId) {
       console.log('Decreasing comment count for:', comment.commentGroup);
 
       try {
         switch (comment.commentGroup) {
           case CommentGroup.ARTICLE:
-            console.log(
-              'Decreasing articleComments for article:',
-              comment.commentRefId,
-            );
             await this.communityService.articleStatsEditor({
               _id: comment.commentRefId,
               targetKey: 'articleComments',
@@ -238,10 +226,6 @@ export class CommentService {
             break;
 
           case CommentGroup.PRODUCT:
-            console.log(
-              'Decreasing productComments for product:',
-              comment.commentRefId,
-            );
             await this.productService.productStatsEditor({
               _id: comment.commentRefId,
               targetKey: 'productComments',

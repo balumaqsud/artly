@@ -122,9 +122,9 @@ export const lookupFavorite = {
 export const lookupVisit = {
   $lookup: {
     from: 'members',
-    localField: 'visitProduct.memberId',
+    localField: 'visitedProduct.memberId',
     foreignField: '_id',
-    as: 'visitProduct.memberData',
+    as: 'visitedProduct.memberData',
   },
 };
 

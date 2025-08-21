@@ -7,6 +7,7 @@ import { T } from '../../libs/types/common';
 import { OrdinaryInquiry } from '../../libs/dto/product/product.input';
 import { Products } from '../../libs/dto/product/product';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { ViewGroup } from '../../libs/enums/view.enum';
 import { lookupVisit } from '../../libs/config';
 
 @Injectable()
@@ -37,7 +38,10 @@ export class ViewService {
     input: OrdinaryInquiry,
   ): Promise<Products> {
     const { page, limit } = input;
-    const match: T = { likeGroup: LikeGroup.PRODUCT, memberId: memberId };
+    const match: T = { viewGroup: ViewGroup.PRODUCT, memberId: memberId };
+
+    console.log('getVisited called with memberId:', memberId);
+    console.log('getVisited match criteria:', match);
 
     const data: T = await this.viewModel
       .aggregate([
@@ -68,8 +72,13 @@ export class ViewService {
       ])
       .exec();
 
+    console.log('getVisited raw data length:', data[0]?.list?.length || 0);
+    console.log('getVisited metaCounter:', data[0]?.metaCounter || []);
+
     const result: Products = { list: [], metaCounter: data[0].metaCounter };
     result.list = data[0].list.map((ele) => ele.visitedProduct);
+
+    console.log('getVisited final result count:', result.list.length);
     return result;
   }
 }
