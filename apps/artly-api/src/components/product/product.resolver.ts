@@ -3,7 +3,7 @@ import { ProductService } from './product.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, BadRequestException } from '@nestjs/common';
 import { Product, Products } from '../../libs/dto/product/product';
 
 import {
@@ -45,8 +45,13 @@ export class ProductResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Product> {
     console.log('mutation: getProduct');
-    const productId = shapeId(input);
-    return await this.productService.getProduct(memberId, productId);
+    try {
+      const productId = shapeId(input);
+      return await this.productService.getProduct(memberId, productId);
+    } catch (error) {
+      console.error('getProduct resolver error:', error);
+      throw new BadRequestException('Invalid product ID format');
+    }
   }
 
   //update product
@@ -58,8 +63,13 @@ export class ProductResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Product> {
     console.log('mutation: updateProduct');
-    input._id = shapeId(input._id);
-    return await this.productService.updateProduct(memberId, input);
+    try {
+      input._id = shapeId(input._id);
+      return await this.productService.updateProduct(memberId, input);
+    } catch (error) {
+      console.error('updateProduct resolver error:', error);
+      throw new BadRequestException('Invalid product ID format');
+    }
   }
 
   //getALlProduct
@@ -103,8 +113,13 @@ export class ProductResolver {
     @AuthMember('_id') memberId: ObjectId,
   ): Promise<Product> {
     console.log('Mutation: likeTargetProduct');
-    const targetId = shapeId(input);
-    return await this.productService.likeTargetProduct(memberId, targetId);
+    try {
+      const targetId = shapeId(input);
+      return await this.productService.likeTargetProduct(memberId, targetId);
+    } catch (error) {
+      console.error('likeTargetProduct resolver error:', error);
+      throw new BadRequestException('Invalid product ID format');
+    }
   }
 
   //getProducts
@@ -138,8 +153,13 @@ export class ProductResolver {
     @Args('input') input: ProductUpdate,
   ): Promise<Product> {
     console.log('mutation: updateProductByAdmin');
-    input._id = shapeId(input._id);
-    return await this.productService.updateProductByAdmin(input);
+    try {
+      input._id = shapeId(input._id);
+      return await this.productService.updateProductByAdmin(input);
+    } catch (error) {
+      console.error('updateProductByAdmin resolver error:', error);
+      throw new BadRequestException('Invalid product ID format');
+    }
   }
 
   @Roles(MemberType.ADMIN)
@@ -149,7 +169,12 @@ export class ProductResolver {
     @Args('productId') input: string,
   ): Promise<Product> {
     console.log('mutation: removeProductByAdmin');
-    const productId = shapeId(input);
-    return await this.productService.removeProductByAdmin(productId);
+    try {
+      const productId = shapeId(input);
+      return await this.productService.removeProductByAdmin(productId);
+    } catch (error) {
+      console.error('removeProductByAdmin resolver error:', error);
+      throw new BadRequestException('Invalid product ID format');
+    }
   }
 }

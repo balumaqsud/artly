@@ -1,6 +1,10 @@
 import { Field, ID, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { ProductStatus, ProductType } from '../../enums/product.enum';
+import {
+  ProductStatus,
+  ProductType,
+  SHippingTimeType,
+} from '../../enums/product.enum';
 
 @InputType()
 export class ProductUpdate {
@@ -17,9 +21,20 @@ export class ProductUpdate {
   productStatus?: ProductStatus;
 
   @IsOptional()
-  @Length(3, 100)
   @Field(() => String, { nullable: true })
-  productAddress?: string;
+  productCategory?: string;
+
+  @IsOptional()
+  @Field(() => [String], { nullable: true })
+  productTags?: string[];
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productLocation?: string;
+
+  @IsOptional()
+  @Field(() => SHippingTimeType, { nullable: true })
+  productShippingTime?: SHippingTimeType;
 
   @IsOptional()
   @Length(3, 100)
@@ -27,7 +42,8 @@ export class ProductUpdate {
   productTitle?: string;
 
   @IsOptional()
-  @Field(() => Number, { nullable: true })
+  @Min(0)
+  @Field(() => Int, { nullable: true })
   productPrice?: number;
 
   @IsOptional()
@@ -35,15 +51,44 @@ export class ProductUpdate {
   productImages?: string[];
 
   @IsOptional()
+  @Field(() => [String], { nullable: true })
+  productMaterials?: string[];
+
+  @IsOptional()
+  @Field(() => [String], { nullable: true })
+  productColor?: string[];
+
+  @IsOptional()
   @Length(5, 500)
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
-  soldAt?: Date;
+  @IsOptional()
+  @Min(0)
+  @Field(() => Int, { nullable: true })
+  productShippingCost?: number;
 
-  deletedAt?: Date;
+  @IsOptional()
+  @Field(() => Boolean, { nullable: true })
+  productWrapAvailable?: boolean;
+
+  @IsOptional()
+  @Field(() => Boolean, { nullable: true })
+  productPersonalizable?: boolean;
+
+  @IsOptional()
+  @Field(() => Int, { nullable: true })
+  productStock?: number;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productSlug?: string;
 
   @IsOptional()
   @Field(() => Date, { nullable: true })
-  constructedAt?: Date;
+  soldAt?: Date;
+
+  @IsOptional()
+  @Field(() => Date, { nullable: true })
+  deletedAt?: Date;
 }

@@ -75,11 +75,11 @@ export class ProductInput {
 
   @IsOptional()
   @Field(() => Boolean, { nullable: true })
-  productWrapAvailable: boolean;
+  productWrapAvailable?: boolean;
 
   @IsOptional()
   @Field(() => Boolean, { nullable: true })
-  productPersonalizable: boolean;
+  productPersonalizable?: boolean;
 
   memberId?: ObjectId;
 }

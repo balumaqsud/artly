@@ -50,6 +50,22 @@ export class ProductService {
   //createProduct
   public async createProduct(input: ProductInput): Promise<Product> {
     console.log('executed: createProduct');
+
+    // Validate required fields
+    if (
+      !input.productTitle ||
+      !input.productPrice ||
+      !input.productImages ||
+      !input.productMaterials ||
+      !input.productTags ||
+      !input.productCategory ||
+      !input.productLocation ||
+      !input.productType ||
+      !input.productShippingTime
+    ) {
+      throw new BadRequestException('All required fields must be provided');
+    }
+
     const slug = slugify(input.productTitle, { lower: true, strict: true });
 
     const existing = await this.productModel.findOne({ productSlug: slug });
@@ -177,7 +193,7 @@ export class ProductService {
     input: ProductUpdate,
   ): Promise<Product> {
     try {
-      let { productStatus, soldAt, deletedAt } = input;
+      let { productStatus, soldAt, deletedAt, productTitle } = input;
 
       // Validate that the product exists and belongs to the member
       const existingProduct = await this.productModel.findOne({
@@ -197,6 +213,25 @@ export class ProductService {
         memberId: memberId,
         productStatus: ProductStatus.ACTIVE,
       };
+
+      // Generate new slug if title is being updated
+      if (productTitle && productTitle !== existingProduct.productTitle) {
+        const newSlug = slugify(productTitle, { lower: true, strict: true });
+
+        // Check if the new slug already exists (excluding current product)
+        const slugExists = await this.productModel.findOne({
+          productSlug: newSlug,
+          _id: { $ne: input._id },
+        });
+
+        if (slugExists) {
+          throw new BadRequestException(
+            'Product title would create a duplicate slug',
+          );
+        }
+
+        input.productSlug = newSlug;
+      }
 
       if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
       if (productStatus === ProductStatus.DELETE) deletedAt = moment().toDate();
@@ -373,11 +408,33 @@ export class ProductService {
 
   //admin product update
   public async updateProductByAdmin(input: ProductUpdate): Promise<Product> {
-    let { productStatus, soldAt, deletedAt } = input;
+    let { productStatus, soldAt, deletedAt, productTitle } = input;
     const search: T = {
       _id: input._id,
       productStatus: ProductStatus.ACTIVE,
     };
+
+    // Generate new slug if title is being updated
+    if (productTitle) {
+      const existingProduct = await this.productModel.findOne(search);
+      if (existingProduct && productTitle !== existingProduct.productTitle) {
+        const newSlug = slugify(productTitle, { lower: true, strict: true });
+
+        // Check if the new slug already exists (excluding current product)
+        const slugExists = await this.productModel.findOne({
+          productSlug: newSlug,
+          _id: { $ne: input._id },
+        });
+
+        if (slugExists) {
+          throw new BadRequestException(
+            'Product title would create a duplicate slug',
+          );
+        }
+
+        input.productSlug = newSlug;
+      }
+    }
 
     if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
     if (productStatus === ProductStatus.DELETE) deletedAt = moment().toDate();
