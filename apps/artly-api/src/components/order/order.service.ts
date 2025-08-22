@@ -74,23 +74,27 @@ export class OrderService {
     if (orderStatus) {
       matches.orderStatus = orderStatus;
     }
+
+    console.log('getMyOrders matches:', matches);
+    console.log('getMyOrders input:', input);
     const result = await this.orderModel
       .aggregate([
         { $match: matches },
         { $sort: { updatedAt: -1 } },
+        lookUpOrders,
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'orderItems.productId',
+            foreignField: '_id',
+            as: 'productData',
+          },
+        },
         {
           $facet: {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              lookUpOrders,
-              {
-                $unwind: '$orderItems',
-              },
-              lookUpProducts,
-              {
-                $unwind: '$productData',
-              },
             ],
             metaCounter: [{ $count: 'total' }],
           },
@@ -98,7 +102,10 @@ export class OrderService {
       ])
       .exec();
 
-    if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    if (!result || !result[0]) {
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    }
+
     return result[0];
   }
 
