@@ -26,6 +26,7 @@ import { createWriteStream, mkdirSync } from 'fs';
 import { join } from 'path';
 import { Message } from '../../libs/enums/common.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Product } from '../../libs/dto/product/product';
 
 @Resolver()
 export class MemberResolver {
@@ -237,7 +238,7 @@ export class MemberResolver {
 
   //admin => authorization by roles guards
   @Roles(MemberType.ADMIN)
-  @Mutation(() => Members)
+  @Query(() => Members)
   public async getAllMembersByAdmin(
     @Args('input') input: MembersInquiry,
   ): Promise<Members> {
@@ -253,5 +254,21 @@ export class MemberResolver {
     console.log('mutation: updateMemberByAdmin');
 
     return await this.memberService.updateMemberByAdmin(input);
+  }
+
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation((returns) => Member)
+  public async removeMemberByAdmin(
+    @Args('memberId') input: string,
+  ): Promise<Member> {
+    console.log('mutation: removeProductByAdmin');
+    try {
+      const memberId = shapeId(input);
+      return await this.memberService.removeMemberByAdmin(memberId);
+    } catch (error) {
+      console.error('removeMemberByAdmin resolver error:', error);
+      throw new BadRequestException('Invalid member ID format');
+    }
   }
 }

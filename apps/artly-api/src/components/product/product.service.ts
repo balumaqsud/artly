@@ -459,7 +459,6 @@ export class ProductService {
   public async removeProductByAdmin(productId: ObjectId): Promise<Product> {
     const search: T = {
       _id: productId,
-      productStatus: ProductStatus.DELETE,
     };
 
     const result = await this.productModel.findOneAndDelete(search).exec();

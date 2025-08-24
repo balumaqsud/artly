@@ -328,6 +328,16 @@ export class MemberService {
     return result;
   }
 
+  public async removeMemberByAdmin(memberId: ObjectId): Promise<Member> {
+    const search: T = {
+      _id: memberId,
+    };
+
+    const result = await this.memberModel.findOneAndDelete(search).exec();
+    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+    return result;
+  }
+
   public async memberStatsEditor(
     input: StatisticModifier,
   ): Promise<Member | null> {

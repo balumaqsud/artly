@@ -131,7 +131,7 @@ export class CommunityService {
       .exec();
     if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-    if ((input.articleStatus = ArticleStatus.DELETE)) {
+    if (input.articleStatus === ArticleStatus.DELETE) {
       await this.memberService.memberStatsEditor({
         _id: memberId,
         targetKey: 'memberArticles',
@@ -267,7 +267,7 @@ export class CommunityService {
       .exec();
     if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-    if ((input.articleStatus = ArticleStatus.DELETE)) {
+    if (input.articleStatus === ArticleStatus.DELETE) {
       await this.memberService.memberStatsEditor({
         _id: result.memberId,
         targetKey: 'memberArticles',
@@ -280,7 +280,6 @@ export class CommunityService {
     const result = await this.communityModel
       .findByIdAndDelete({
         _id: articleId,
-        articleStatus: ArticleStatus.DELETE,
       })
       .exec();
 
