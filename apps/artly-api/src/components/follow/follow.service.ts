@@ -45,7 +45,7 @@ export class FollowService {
 
     await this.memberService.memberStatsEditor({
       _id: followerId,
-      targetKey: 'memberFollowings',
+      targetKey: 'memberFollowing',
       modifier: 1,
     });
     await this.memberService.memberStatsEditor({
@@ -91,7 +91,7 @@ export class FollowService {
 
     await this.memberService.memberStatsEditor({
       _id: followerId,
-      targetKey: 'memberFollowings',
+      targetKey: 'memberFollowing',
       modifier: -1,
     });
     await this.memberService.memberStatsEditor({

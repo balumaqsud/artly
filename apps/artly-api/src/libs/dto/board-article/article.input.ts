@@ -17,7 +17,6 @@ export class ArticleInput {
   articleTitle: string;
 
   @IsNotEmpty()
-  @Length(3, 250)
   @Field(() => String)
   articleContent: string;
 

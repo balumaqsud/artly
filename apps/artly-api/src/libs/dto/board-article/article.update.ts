@@ -19,7 +19,6 @@ export class ArticleUpdate {
   articleTitle?: string;
 
   @IsOptional()
-  @Length(3, 250)
   @Field(() => String, { nullable: true })
   articleContent?: string;
 
