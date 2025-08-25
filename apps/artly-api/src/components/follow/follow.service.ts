@@ -63,22 +63,22 @@ export class FollowService {
     });
     console.log('New follow record created:', result);
 
-    // Update stats using direct update instead of $inc
+    // Update stats using simple increment
     try {
       console.log('Updating follower stats (memberFollowing)...');
-      const followerUpdate = await this.memberService.updateMemberStat(
-        followerId,
-        'memberFollowing',
-        (await this.getMemberFollowingCount(followerId)) + 1,
-      );
+      const followerUpdate = await this.memberService.memberStatsEditor({
+        _id: followerId,
+        targetKey: 'memberFollowing',
+        modifier: 1,
+      });
       console.log('Follower stats updated:', followerUpdate?.memberFollowing);
 
       console.log('Updating following stats (memberFollowers)...');
-      const followingUpdate = await this.memberService.updateMemberStat(
-        followingId,
-        'memberFollowers',
-        (await this.getMemberFollowersCount(followingId)) + 1,
-      );
+      const followingUpdate = await this.memberService.memberStatsEditor({
+        _id: followingId,
+        targetKey: 'memberFollowers',
+        modifier: 1,
+      });
       console.log('Following stats updated:', followingUpdate?.memberFollowers);
     } catch (error) {
       console.error('Error updating stats:', error);
@@ -117,22 +117,22 @@ export class FollowService {
 
     console.log('Follow record deleted:', result);
 
-    // Update stats using direct update instead of $inc
+    // Update stats using simple decrement
     try {
       console.log('Decrementing follower stats (memberFollowing)...');
-      const followerUpdate = await this.memberService.updateMemberStat(
-        followerId,
-        'memberFollowing',
-        (await this.getMemberFollowingCount(followerId)) - 1,
-      );
+      const followerUpdate = await this.memberService.memberStatsEditor({
+        _id: followerId,
+        targetKey: 'memberFollowing',
+        modifier: -1,
+      });
       console.log('Follower stats updated:', followerUpdate?.memberFollowing);
 
       console.log('Decrementing following stats (memberFollowers)...');
-      const followingUpdate = await this.memberService.updateMemberStat(
-        followingId,
-        'memberFollowers',
-        (await this.getMemberFollowersCount(followingId)) - 1,
-      );
+      const followingUpdate = await this.memberService.memberStatsEditor({
+        _id: followingId,
+        targetKey: 'memberFollowers',
+        modifier: -1,
+      });
       console.log('Following stats updated:', followingUpdate?.memberFollowers);
     } catch (error) {
       console.error('Error updating stats:', error);
