@@ -342,14 +342,63 @@ export class MemberService {
     input: StatisticModifier,
   ): Promise<Member | null> {
     const { _id, targetKey, modifier } = input;
-    return await this.memberModel
-      .findByIdAndUpdate(
-        _id,
-        {
-          $inc: { [targetKey]: modifier },
-        },
-        { new: true },
-      )
-      .exec();
+    console.log(`memberStatsEditor called with:`, { _id, targetKey, modifier });
+
+    try {
+      // First, let's check the current value
+      const currentMember = await this.memberModel.findById(_id).exec();
+      console.log(`Current ${targetKey} value:`, currentMember?.[targetKey]);
+
+      // Try the $inc operation
+      const result = await this.memberModel
+        .findByIdAndUpdate(
+          _id,
+          {
+            $inc: { [targetKey]: modifier },
+          },
+          { new: true },
+        )
+        .exec();
+
+      console.log(`memberStatsEditor result:`, result);
+      console.log(`New ${targetKey} value:`, result?.[targetKey]);
+
+      // Verify the update actually happened
+      if (result && result[targetKey] !== currentMember?.[targetKey]) {
+        console.log(
+          `✅ ${targetKey} successfully updated from ${currentMember?.[targetKey]} to ${result[targetKey]}`,
+        );
+      } else {
+        console.log(
+          `❌ ${targetKey} update may have failed. Expected: ${(currentMember?.[targetKey] || 0) + modifier}, Got: ${result?.[targetKey]}`,
+        );
+      }
+
+      return result;
+    } catch (error) {
+      console.error(`Error in memberStatsEditor:`, error);
+      throw error;
+    }
+  }
+
+  // Alternative method using direct update
+  public async updateMemberStat(
+    memberId: ObjectId,
+    field: string,
+    value: number,
+  ): Promise<Member | null> {
+    console.log(`updateMemberStat called with:`, { memberId, field, value });
+
+    try {
+      const result = await this.memberModel
+        .findByIdAndUpdate(memberId, { [field]: value }, { new: true })
+        .exec();
+
+      console.log(`updateMemberStat result:`, result);
+      return result;
+    } catch (error) {
+      console.error(`Error in updateMemberStat:`, error);
+      throw error;
+    }
   }
 }

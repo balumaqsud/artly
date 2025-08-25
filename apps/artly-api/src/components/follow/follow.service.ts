@@ -34,6 +34,8 @@ export class FollowService {
     followerId: ObjectId,
     followingId: ObjectId,
   ): Promise<Follower> {
+    console.log('subscribe called with:', { followerId, followingId });
+
     if (followerId.toString() === followingId.toString())
       throw new InternalServerErrorException(Message.SELF_SUBSCRIPTION_DENIED);
 
@@ -41,64 +43,102 @@ export class FollowService {
     if (!targetMember)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-    const result = await this.registerSub(followerId, followingId);
+    // Check if follow already exists
+    const existingFollow = await this.followModel
+      .findOne({
+        followerId: followerId,
+        followingId: followingId,
+      })
+      .exec();
 
-    await this.memberService.memberStatsEditor({
-      _id: followerId,
-      targetKey: 'memberFollowing',
-      modifier: 1,
+    if (existingFollow) {
+      console.log('Follow already exists, returning existing record');
+      return existingFollow;
+    }
+
+    // Create new follow record
+    const result = await this.followModel.create({
+      followerId: followerId,
+      followingId: followingId,
     });
-    await this.memberService.memberStatsEditor({
-      _id: followingId,
-      targetKey: 'memberFollowers',
-      modifier: 1,
-    });
+    console.log('New follow record created:', result);
+
+    // Update stats using direct update instead of $inc
+    try {
+      console.log('Updating follower stats (memberFollowing)...');
+      const followerUpdate = await this.memberService.updateMemberStat(
+        followerId,
+        'memberFollowing',
+        (await this.getMemberFollowingCount(followerId)) + 1,
+      );
+      console.log('Follower stats updated:', followerUpdate?.memberFollowing);
+
+      console.log('Updating following stats (memberFollowers)...');
+      const followingUpdate = await this.memberService.updateMemberStat(
+        followingId,
+        'memberFollowers',
+        (await this.getMemberFollowersCount(followingId)) + 1,
+      );
+      console.log('Following stats updated:', followingUpdate?.memberFollowers);
+    } catch (error) {
+      console.error('Error updating stats:', error);
+      // If stats update fails, delete the follow record to maintain consistency
+      await this.followModel.findByIdAndDelete(result._id);
+      throw new InternalServerErrorException('Failed to update member stats');
+    }
 
     return result;
   }
-  ///private register subscribe logic
-  private async registerSub(
-    followerId: ObjectId,
-    followingId: ObjectId,
-  ): Promise<Follower> {
-    try {
-      return await this.followModel.create({
-        followerId: followerId,
-        followingId: followingId,
-      });
-    } catch (error) {
-      console.log('reg sub err', error);
-      throw new BadRequestException(Message.CREATE_FAILED);
-    }
-  }
+
   //unsubscribe
   public async unsubscribe(
     followerId: ObjectId,
     followingId: ObjectId,
   ): Promise<Follower> {
+    console.log('unsubscribe called with:', { followerId, followingId });
+
     if (followerId.toString() === followingId.toString())
-      throw new InternalServerErrorException(Message.SELF_SUBSCRIPTION_DENIED);
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     const targetMember = await this.memberService.getMember(null, followingId);
     if (!targetMember)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
+    // Find and delete the follow record
     const result = await this.followModel.findOneAndDelete({
       followerId: followerId,
       followingId: followingId,
     });
-    if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-    await this.memberService.memberStatsEditor({
-      _id: followerId,
-      targetKey: 'memberFollowing',
-      modifier: -1,
-    });
-    await this.memberService.memberStatsEditor({
-      _id: followingId,
-      targetKey: 'memberFollowers',
-      modifier: -1,
-    });
+    if (!result) {
+      console.log('No follow record found to delete');
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    }
+
+    console.log('Follow record deleted:', result);
+
+    // Update stats using direct update instead of $inc
+    try {
+      console.log('Decrementing follower stats (memberFollowing)...');
+      const followerUpdate = await this.memberService.updateMemberStat(
+        followerId,
+        'memberFollowing',
+        (await this.getMemberFollowingCount(followerId)) - 1,
+      );
+      console.log('Follower stats updated:', followerUpdate?.memberFollowing);
+
+      console.log('Decrementing following stats (memberFollowers)...');
+      const followingUpdate = await this.memberService.updateMemberStat(
+        followingId,
+        'memberFollowers',
+        (await this.getMemberFollowersCount(followingId)) - 1,
+      );
+      console.log('Following stats updated:', followingUpdate?.memberFollowers);
+    } catch (error) {
+      console.error('Error updating stats:', error);
+      throw new InternalServerErrorException('Failed to update member stats');
+    }
+
     return result;
   }
 
@@ -192,5 +232,82 @@ export class FollowService {
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
+  }
+
+  // Helper method to get member following count
+  private async getMemberFollowingCount(memberId: ObjectId): Promise<number> {
+    const count = await this.followModel
+      .countDocuments({
+        followerId: memberId,
+      })
+      .exec();
+    return count;
+  }
+
+  // Helper method to get member followers count
+  private async getMemberFollowersCount(memberId: ObjectId): Promise<number> {
+    const count = await this.followModel
+      .countDocuments({
+        followingId: memberId,
+      })
+      .exec();
+    return count;
+  }
+
+  // Method to recalculate and sync follow counts
+  public async recalculateFollowCounts(memberId: ObjectId): Promise<void> {
+    console.log('Recalculating follow counts for member:', memberId);
+
+    try {
+      // Count how many people this member is following
+      const followingCount = await this.getMemberFollowingCount(memberId);
+
+      // Count how many followers this member has
+      const followersCount = await this.getMemberFollowersCount(memberId);
+
+      console.log('Calculated counts:', { followingCount, followersCount });
+
+      // Update the member stats directly
+      await this.memberService.updateMemberStat(
+        memberId,
+        'memberFollowing',
+        followingCount,
+      );
+      await this.memberService.updateMemberStat(
+        memberId,
+        'memberFollowers',
+        followersCount,
+      );
+
+      console.log('Follow counts recalculated and updated');
+    } catch (error) {
+      console.error('Error recalculating follow counts:', error);
+      throw error;
+    }
+  }
+
+  // Method to sync all member follow counts (for admin use)
+  public async syncAllFollowCounts(): Promise<void> {
+    console.log('Syncing all member follow counts...');
+
+    try {
+      // Get all unique member IDs from follows collection
+      const followerIds = await this.followModel.distinct('followerId').exec();
+      const followingIds = await this.followModel
+        .distinct('followingId')
+        .exec();
+      const allMemberIds = [...new Set([...followerIds, ...followingIds])];
+
+      console.log(`Found ${allMemberIds.length} members with follow activity`);
+
+      for (const memberId of allMemberIds) {
+        await this.recalculateFollowCounts(memberId);
+      }
+
+      console.log('All follow counts synced successfully');
+    } catch (error) {
+      console.error('Error syncing all follow counts:', error);
+      throw error;
+    }
   }
 }

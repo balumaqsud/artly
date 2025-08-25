@@ -68,4 +68,25 @@ export class FollowResolver {
 
     return await this.followService.getMemberFollowers(memberId, input);
   }
+
+  // Admin method to recalculate follow counts
+  @UseGuards(AuthGuard)
+  @Mutation(() => String)
+  public async recalculateFollowCounts(
+    @Args('memberId') memberId: string,
+  ): Promise<string> {
+    console.log('mutation: recalculateFollowCounts');
+    const targetId = shapeId(memberId);
+    await this.followService.recalculateFollowCounts(targetId);
+    return 'Follow counts recalculated successfully';
+  }
+
+  // Admin method to sync all follow counts
+  @UseGuards(AuthGuard)
+  @Mutation(() => String)
+  public async syncAllFollowCounts(): Promise<string> {
+    console.log('mutation: syncAllFollowCounts');
+    await this.followService.syncAllFollowCounts();
+    return 'All follow counts synced successfully';
+  }
 }
