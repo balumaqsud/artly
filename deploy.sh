@@ -1,6 +1,7 @@
 #!/bin/bash
 
+
 git reset --hard 
-git checkout master 
+git checkout main 
 git pull origin main
 docker compose up -d
