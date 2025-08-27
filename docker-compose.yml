@@ -9,27 +9,27 @@ services:
       - '4001:3007'
     volumes:
       - ./:/usr/src/artly
+      - /usr/src/artly/node_modules # Prevent host node_modules interference
     working_dir: /usr/src/artly
-
     networks:
       - monorepo-network
-
-    #for prod
-    command: bash -c "npm install && npm run build && npm run start:prod"
+    # UPDATED COMMAND - use the new script
+    command: bash -c "npm install && npm run docker:prod"
 
   artly-batch:
     container_name: artly-batch
     restart: unless-stopped
     image: node:20.10.0
-
     ports:
       - '4002:3008'
     volumes:
       - ./:/usr/src/artly
+      - /usr/src/artly/node_modules
     working_dir: /usr/src/artly
+    networks:
+      - monorepo-network
 
-    #for prod
-    command: bash -c "npm install && npm run build && npm run start:prod:batch"
+    command: bash -c "npm install && npm run docker:prod:batch"
 
 networks:
   monorepo-network:

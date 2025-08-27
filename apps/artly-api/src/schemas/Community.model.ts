@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { ArticleCategory, ArticleStatus } from '../libs/enums/community.enum';
+import { ArticleCategory, ArticleStatus } from '../libs/enums/Community.enum';
 
 const CommunitySchema = new Schema(
   {
