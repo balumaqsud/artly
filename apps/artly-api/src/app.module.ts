@@ -17,9 +17,19 @@ import { SocketModule } from './socket/socket.module';
     // integration of graphql api
     GraphQLModule.forRoot({
       driver: ApolloDriver,
-      playground: true,
-      uploads: false,
       autoSchemaFile: true,
+      playground: true,
+      introspection: true,
+      // Configure CORS for Docker networking
+      cors: {
+        origin: [
+          'http://localhost:4001',
+          'http://localhost:3000',
+          'http://localhost:3001',
+          'http://host.docker.internal:4001',
+        ],
+        credentials: true,
+      },
       //global integration of error handling
       formatError: (error: T) => {
         const graphqlError = {
