@@ -16,7 +16,7 @@ import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
-import { ArticleStatus } from '../../libs/enums/Community.enum';
+import { ArticleStatus } from '../../libs/enums/articles.enum';
 
 import { lookUpMember } from '../../libs/config';
 import { T } from '../../libs/types/common';

@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { ObjectId } from 'mongoose';
-import { ArticleCategory, ArticleStatus } from '../../enums/Community.enum';
+import { ArticleCategory, ArticleStatus } from '../../enums/articles.enum';
 import { Direction } from '../../enums/common.enum';
 import { availableArticleSorts } from '../../config';
 

@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
-import { ArticleStatus } from '../../enums/Community.enum';
+import { ArticleStatus } from '../../enums/articles.enum';
 import { ObjectId } from 'mongoose';
 
 @InputType()

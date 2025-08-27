@@ -14,7 +14,7 @@ import {
   ArticlesInquiry,
 } from '../../libs/dto/board-article/article.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { ArticleStatus } from '../../libs/enums/Community.enum';
+import { ArticleStatus } from '../../libs/enums/articles.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ArticleUpdate } from '../../libs/dto/board-article/article.update';
