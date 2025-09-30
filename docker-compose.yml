@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   artly-api:
@@ -6,9 +6,9 @@ services:
     restart: always
     image: node:20.10.0
     ports:
-      - '4001:3007'
+      - "4009:3013"
     volumes:
-      - ./:/usr/src/artly  
+      - ./:/usr/src/artly
       - /usr/src/artly/node_modules
     working_dir: /usr/src/artly
     networks:
@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
     image: node:20.10.0
     ports:
-      - '4002:3008'
+      - "4010:3014"
     volumes:
       - ./:/usr/src/artly
       - /usr/src/artly/node_modules
